@@ -20,27 +20,27 @@
 
 #include "g_common.h"
 
-#define G_IR_MEMORY_ACTIVATE 0
-#define G_IR_MEMORY_TRAIN    1
-#define G_IR_MEMORY_END      2
+#define G__IR_MEMORY_ACTIVATE 0
+#define G__IR_MEMORY_TRAIN    1
+#define G__IR_MEMORY_END      2
 
-#define G_IR_PRECISION_NONE   0
-#define G_IR_PRECISION_FLOAT  1
-#define G_IR_PRECISION_DOUBLE 2
-#define G_IR_PRECISION_FIXED  3
+#define G__IR_PRECISION_NONE   0
+#define G__IR_PRECISION_FLOAT  1
+#define G__IR_PRECISION_DOUBLE 2
+#define G__IR_PRECISION_FIXED  3
 
-#define G_IR_COSTFNC_NONE          0
-#define G_IR_COSTFNC_QUADRATIC     1
-#define G_IR_COSTFNC_EXPONENTIAL   2
-#define G_IR_COSTFNC_CROSS_ENTROPY 3
+#define G__IR_COSTFNC_NONE          0
+#define G__IR_COSTFNC_QUADRATIC     1
+#define G__IR_COSTFNC_EXPONENTIAL   2
+#define G__IR_COSTFNC_CROSS_ENTROPY 3
 
-#define G_IR_ACTIVATION_NONE    0
-#define G_IR_ACTIVATION_RELU    1
-#define G_IR_ACTIVATION_LINEAR  2
-#define G_IR_ACTIVATION_SOFTMAX 3
-#define G_IR_ACTIVATION_SIGMOID 4
+#define G__IR_ACTIVATION_NONE    0
+#define G__IR_ACTIVATION_RELU    1
+#define G__IR_ACTIVATION_LINEAR  2
+#define G__IR_ACTIVATION_SOFTMAX 3
+#define G__IR_ACTIVATION_SIGMOID 4
 
-struct g_ir {
+struct g__ir {
 	int batch;
 	int layers;
 	double eta;
@@ -51,44 +51,45 @@ struct g_ir {
 		int whole;
 		int fraction;
 		int precision;
-	} memory[G_IR_MEMORY_END];
+	} memory[G__IR_MEMORY_END];
 	struct {
 		int size;
 		int activation;
 	} *nodes;
 };
 
-const struct g_ir *g_ir_parse(const char *pathname);
+const struct g__ir *g__ir_parse(const char *pathname);
 
-void g_ir_destroy(void);
+void g__ir_destroy(void);
 
 /*-----------------------------------------------------------------------------
  * Lexer/Parser Backend
  *---------------------------------------------------------------------------*/
 
 extern int yylineno;
+extern int yyerroron;
 extern int yylex(void);
 extern int yyparse(void);
 extern int yylex_destroy(void);
 extern void yyrestart(FILE *file);
 extern void yyerror(const char *format, ...);
 
-int g_ir_top(void);
-int g_ir_precision(long whole1,
-		   long fraction1,
-		   long precision1,
-		   long whole2,
-		   long fraction2,
-		   long precision2);
-int g_ir_module(const char *s);
-int g_ir_prefix(const char *s);
-int g_ir_costfnc(long costfnc);
-int g_ir_batch(long batch);
-int g_ir_eta(double eta);
-int g_ir_input(long size);
-int g_ir_output(long size, long activation);
-int g_ir_hidden(long size, long activation);
-void *g_ir_malloc(size_t n);
-char *g_ir_strdup(const char *s_);
+int g__ir_top(void);
+int g__ir_precision(long whole1,
+		    long fraction1,
+		    long precision1,
+		    long whole2,
+		    long fraction2,
+		    long precision2);
+int g__ir_module(const char *s);
+int g__ir_prefix(const char *s);
+int g__ir_costfnc(long costfnc);
+int g__ir_batch(long batch);
+int g__ir_eta(double eta);
+int g__ir_input(long size);
+int g__ir_output(long size, long activation);
+int g__ir_hidden(long size, long activation);
+void *g__ir_malloc(size_t n);
+char *g__ir_strdup(const char *s_);
 
 #endif /* _G_IR_H_ */

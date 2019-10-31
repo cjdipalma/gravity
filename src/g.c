@@ -1,5 +1,5 @@
 /**
- * g_vcm.h
+ * g.c
  * Copyright (C) Tony Givargis, 2019
  *
  * This file is part of The Gravity Compiler.
@@ -15,15 +15,44 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _G_VCM_H_
-#define _G_VCM_H_
+#include "g_ann.h"
+#include "g.h"
 
-typedef struct g__vcm *g__vcm_t;
+struct g {
+	int x;
+};
 
-g__vcm_t g__vcm_open(const char *pathname);
+int g_version(void) {
+	return G__VERSION;
+}
 
-void g__vcm_close(g__vcm_t vcm);
+g_t g_open(const char *program) {
+	if (!g__strlen(program)) {
+		G__DEBUG(G__ERR_ARGUMENT);
+		return 0;
+	}
+	return 0;
+}
 
-long g__vcm_lookup(g__vcm_t vcm, const char *symbol);
+void g_close(g_t g) {
+	if (g) {
+		memset(g, 0, sizeof (struct g));
+	}
+	G__FREE(g);
+}
 
-#endif /* _G_VCM_H_ */
+void *g_activate(g_t g, const void *x) {
+	if (!g || !x) {
+		G__DEBUG(G__ERR_ARGUMENT);
+		return 0;
+	}
+	return 0;
+}
+
+int g_train(g_t g, const void *x, const void *y) {
+	if (!g || !x || !y) {
+		G__DEBUG(G__ERR_ARGUMENT);
+		return -1;
+	}
+	return 0;
+}

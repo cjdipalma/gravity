@@ -19,7 +19,7 @@ CC    = gcc
 FLAGS = -ansi -pedantic -Wshadow -Wall -Wextra -Werror -Wfatal-errors -fPIC -O3
 LIBS  = -ldl -lm
 DEST  = gravity
-OBJS  = g_common.o g_vcm.o g_ir.o g_ann.o g_emitc.o y.tab.o lex.yy.o
+OBJS  = g_common.o g_vcm.o g_ir.o g_ann.o g_emitc.o g.o y.tab.o lex.yy.o
 
 all: lang $(OBJS) $(DEST).o
 	$(CC) -o $(DEST) $(DEST).o $(OBJS) $(LIBS)

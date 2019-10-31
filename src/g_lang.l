@@ -29,54 +29,58 @@
 %option noinput
 
 %%
-".module"                        { return G_MODULE;                    }
-".prefix"                        { return G_PREFIX;                    }
-".precision"                     { return G_PRECISION;                 }
-".costfnc"                       { return G_COSTFNC;                   }
-".batch"                         { return G_BATCH;                     }
-".eta"                           { return G_ETA;                       }
-".input"                         { return G_INPUT;                     }
-".output"                        { return G_OUTPUT;                    }
-".hidden"                        { return G_HIDDEN;                    }
-"float"                          { return G_FLOAT;                     }
-"double"                         { return G_DOUBLE;                    }
-"fixed"                          { return G_FIXED;                     }
-"quadratic"                      { return G_QUADRATIC;                 }
-"exponential"                    { return G_EXPONENTIAL;               }
-"cross_entropy"                  { return G_CROSS_ENTROPY;             }
-"relu"                           { return G_RELU;                      }
-"linear"                         { return G_LINEAR;                    }
-"softmax"                        { return G_SOFTMAX;                   }
-"sigmoid"                        { return G_SIGMOID;                   }
-","                              { return ',';                         }
-"["                              { return '[';                         }
-"]"                              { return ']';                         }
-"("                              { return '(';                         }
-")"                              { return ')';                         }
-"+"                              { return '+';                         }
-"-"                              { return '-';                         }
-"*"                              { return '*';                         }
-"/"                              { return '/';                         }
-"%"                              { return '%';                         }
--?[0-9]+                         { yylval.s = yytext; return G_LONG;   }
+".module"                        { return G__MODULE;                    }
+".prefix"                        { return G__PREFIX;                    }
+".precision"                     { return G__PRECISION;                 }
+".costfnc"                       { return G__COSTFNC;                   }
+".batch"                         { return G__BATCH;                     }
+".eta"                           { return G__ETA;                       }
+".input"                         { return G__INPUT;                     }
+".output"                        { return G__OUTPUT;                    }
+".hidden"                        { return G__HIDDEN;                    }
+"float"                          { return G__FLOAT;                     }
+"double"                         { return G__DOUBLE;                    }
+"fixed"                          { return G__FIXED;                     }
+"quadratic"                      { return G__QUADRATIC;                 }
+"exponential"                    { return G__EXPONENTIAL;               }
+"cross_entropy"                  { return G__CROSS_ENTROPY;             }
+"relu"                           { return G__RELU;                      }
+"linear"                         { return G__LINEAR;                    }
+"softmax"                        { return G__SOFTMAX;                   }
+"sigmoid"                        { return G__SIGMOID;                   }
+","                              { return ',';                          }
+"["                              { return '[';                          }
+"]"                              { return ']';                          }
+"("                              { return '(';                          }
+")"                              { return ')';                          }
+"+"                              { return '+';                          }
+"-"                              { return '-';                          }
+"*"                              { return '*';                          }
+"/"                              { return '/';                          }
+"%"                              { return '%';                          }
+-?[0-9]+                         { yylval.s = yytext; return G__LONG;   }
 -?[0-9]+"."[0-9]* |
 -?"."[0-9]+ |
 -?[0-9]+E[-+]?[0-9]+ |
 -?[0-9]+"."[0-9]*E[-+]?[0-9]+ |
--?"."[0-9]*E[-+]?[0-9]+          { yylval.s = yytext; return G_REAL;   }
+-?"."[0-9]*E[-+]?[0-9]+          { yylval.s = yytext; return G__REAL;   }
 '(\\.|''|[^'\n])*' |
-\"(\\.|\"\"|[^"\n])*\"           { yylval.s = yytext; return G_STRING; }
+\"(\\.|\"\"|[^"\n])*\"           { yylval.s = yytext; return G__STRING; }
 [ \t\n]                          ;
 \/\/.*\n                         ;
-.                                { return G_ERROR;                     }
+.                                { return G__ERROR;                     }
 %%
+
+int yyerroron;
 
 void yyerror(const char *format, ...) {
         va_list va;
 
-        fprintf(stderr, "error: ");
-        va_start(va, format);
-        vfprintf(stderr, format ? format : "syntax error", va);
-        va_end(va);
-        fprintf(stderr, " near line %d\n", yylineno);
+        if (yyerroron) {
+                fprintf(stderr, "error: ");
+                va_start(va, format);
+                vfprintf(stderr, format ? format : "syntax error", va);
+                va_end(va);
+                fprintf(stderr, " near line %d\n", yylineno);
+        }
 }

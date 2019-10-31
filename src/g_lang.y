@@ -31,29 +31,29 @@
 %left '*' '/' '%'
 %right N
 
-%token G_MODULE
-%token G_PREFIX
-%token G_PRECISION
-%token G_COSTFNC
-%token G_BATCH
-%token G_ETA
-%token G_INPUT
-%token G_OUTPUT
-%token G_HIDDEN
-%token G_FLOAT
-%token G_DOUBLE
-%token G_FIXED
-%token G_QUADRATIC
-%token G_EXPONENTIAL
-%token G_CROSS_ENTROPY
-%token G_RELU
-%token G_LINEAR
-%token G_SOFTMAX
-%token G_SIGMOID
-%token <s> G_LONG
-%token <s> G_REAL
-%token <s> G_STRING
-%token G_ERROR
+%token G__MODULE
+%token G__PREFIX
+%token G__PRECISION
+%token G__COSTFNC
+%token G__BATCH
+%token G__ETA
+%token G__INPUT
+%token G__OUTPUT
+%token G__HIDDEN
+%token G__FLOAT
+%token G__DOUBLE
+%token G__FIXED
+%token G__QUADRATIC
+%token G__EXPONENTIAL
+%token G__CROSS_ENTROPY
+%token G__RELU
+%token G__LINEAR
+%token G__SOFTMAX
+%token G__SIGMOID
+%token <s> G__LONG
+%token <s> G__REAL
+%token <s> G__STRING
+%token G__ERROR
 
 %type <t> _precision1_
 %type <l> _costfnc1_
@@ -66,8 +66,8 @@
 %%
 
 top
-  : _phrase_ { if (g_ir_top()) YYABORT; }
-  | G_ERROR  { yyerror(0); YYABORT;  }
+  : _phrase_ { if (g__ir_top()) YYABORT; }
+  | G__ERROR  { yyerror(0); YYABORT;     }
   ;
 
 _phrase_
@@ -90,58 +90,58 @@ _phrase1_
 /*---------------------------------------------------------------------------------------------------------------------------------------*/
 
 _module_
-  : G_MODULE _string_ { if (g_ir_module($2)) YYABORT; }
+  : G__MODULE _string_ { if (g__ir_module($2)) YYABORT; }
   ;
 
 _prefix_
-  : G_PREFIX _string_ { if (g_ir_prefix($2)) YYABORT; }
+  : G__PREFIX _string_ { if (g__ir_prefix($2)) YYABORT; }
   ;
 
 _precision_
-  : G_PRECISION _precision1_ _precision1_ { if (g_ir_precision($2.a, $2.b, $2.c, $3.a, $3.b, $3.c)) YYABORT; }
+  : G__PRECISION _precision1_ _precision1_ { if (g__ir_precision($2.a, $2.b, $2.c, $3.a, $3.b, $3.c)) YYABORT; }
   ;
 
 _precision1_
-  : G_FLOAT                           { struct t t = {  0,  0, G_IR_PRECISION_FLOAT  }; $$ = t; }
-  | G_DOUBLE                          { struct t t = {  0,  0, G_IR_PRECISION_DOUBLE }; $$ = t; }
-  | G_FIXED '[' _expr_ ',' _expr_ ']' { struct t t = { $3, $5, G_IR_PRECISION_FIXED  }; $$ = t; }
+  : G__FLOAT                           { struct t t = {  0,  0, G__IR_PRECISION_FLOAT  }; $$ = t; }
+  | G__DOUBLE                          { struct t t = {  0,  0, G__IR_PRECISION_DOUBLE }; $$ = t; }
+  | G__FIXED '[' _expr_ ',' _expr_ ']' { struct t t = { $3, $5, G__IR_PRECISION_FIXED  }; $$ = t; }
   ;
 
 _costfnc_
-  : G_COSTFNC _costfnc1_ { if (g_ir_costfnc($2)) YYABORT; }
+  : G__COSTFNC _costfnc1_ { if (g__ir_costfnc($2)) YYABORT; }
   ;
 
 _costfnc1_
-  : G_QUADRATIC     { $$ = G_IR_COSTFNC_QUADRATIC;     }
-  | G_EXPONENTIAL   { $$ = G_IR_COSTFNC_EXPONENTIAL;   }
-  | G_CROSS_ENTROPY { $$ = G_IR_COSTFNC_CROSS_ENTROPY; }
+  : G__QUADRATIC     { $$ = G__IR_COSTFNC_QUADRATIC;     }
+  | G__EXPONENTIAL   { $$ = G__IR_COSTFNC_EXPONENTIAL;   }
+  | G__CROSS_ENTROPY { $$ = G__IR_COSTFNC_CROSS_ENTROPY; }
   ;
 
 _batch_
-  : G_BATCH _expr_ { if (g_ir_batch($2)) YYABORT; }
+  : G__BATCH _expr_ { if (g__ir_batch($2)) YYABORT; }
   ;
 
 _eta_
-  : G_ETA _real_ { if (g_ir_eta($2)) YYABORT; }
+  : G__ETA _real_ { if (g__ir_eta($2)) YYABORT; }
   ;
 
 _input_
-  : G_INPUT _expr_ { if (g_ir_input($2)) YYABORT; }
+  : G__INPUT _expr_ { if (g__ir_input($2)) YYABORT; }
   ;
 
 _output_
-  : G_OUTPUT _expr_ _activation_ { if (g_ir_output($2, $3)) YYABORT; }
+  : G__OUTPUT _expr_ _activation_ { if (g__ir_output($2, $3)) YYABORT; }
   ;
 
 _hidden_
-  : G_HIDDEN _expr_ _activation_ { if (g_ir_hidden($2, $3)) YYABORT; }
+  : G__HIDDEN _expr_ _activation_ { if (g__ir_hidden($2, $3)) YYABORT; }
   ;
 
 _activation_
-  : G_RELU    { $$ = G_IR_ACTIVATION_RELU;    }
-  | G_LINEAR  { $$ = G_IR_ACTIVATION_LINEAR;  }
-  | G_SOFTMAX { $$ = G_IR_ACTIVATION_SOFTMAX; }
-  | G_SIGMOID { $$ = G_IR_ACTIVATION_SIGMOID; }
+  : G__RELU    { $$ = G__IR_ACTIVATION_RELU;    }
+  | G__LINEAR  { $$ = G__IR_ACTIVATION_LINEAR;  }
+  | G__SOFTMAX { $$ = G__IR_ACTIVATION_SOFTMAX; }
+  | G__SIGMOID { $$ = G__IR_ACTIVATION_SIGMOID; }
   ;
 
 /*---------------------------------------------------------------------------------------------------------------------------------------*/
@@ -153,45 +153,45 @@ _expr_
   | _expr_ '+' _expr_  { $$ = $1 + $3; }
   | _expr_ '-' _expr_  { $$ = $1 - $3; }
   | _expr_ '*' _expr_  { $$ = $1 * $3; }
-  | _expr_ '/' _expr_  { if(!$3) { yyerror("divide by zero near line %d", yylineno); G_DEBUG(G_ERR_SYNTAX); YYABORT; } $$ = $1 / $3; }
-  | _expr_ '%' _expr_  { if(!$3) { yyerror("divide by zero near line %d", yylineno); G_DEBUG(G_ERR_SYNTAX); YYABORT; } $$ = $1 % $3; }
+  | _expr_ '/' _expr_  { if(!$3) { yyerror("divide by zero near line %d", yylineno); G__DEBUG(G__ERR_SYNTAX); YYABORT; } $$ = $1 / $3; }
+  | _expr_ '%' _expr_  { if(!$3) { yyerror("divide by zero near line %d", yylineno); G__DEBUG(G__ERR_SYNTAX); YYABORT; } $$ = $1 % $3; }
   ;
 
 _long_
-  : G_LONG
+  : G__LONG
   {
     char *e = 0;
     $$ = strtol($1, &e, 10);
     if ((e == $1) || (*e)) {
       yyerror("invalid numeric value '%s' near line %d", $1, yylineno);
-      G_DEBUG(G_ERR_SYNTAX);
+      G__DEBUG(G__ERR_SYNTAX);
       YYABORT;
     }
   }
   ;
 
 _real_
-  : G_REAL
+  : G__REAL
   {
     char *e = 0;
     $$ = strtod($1, &e);
     if ((e == $1) || (*e)) {
       yyerror("invalid numeric value '%s' near line %d", $1, yylineno);
-      G_DEBUG(G_ERR_SYNTAX);
+      G__DEBUG(G__ERR_SYNTAX);
       YYABORT;
     }
   }
   ;
 
 _string_
-  : G_STRING
+  : G__STRING
   {
-    if (!($$ = g_ir_strdup($1 + 1))) {
+    if (!($$ = g__ir_strdup($1 + 1))) {
       yyerror("out of memory");
-      G_DEBUG(0);
+      G__DEBUG(0);
       YYABORT;
     }
-    $$[g_strlen($$)-1] = 0;
+    $$[g__strlen($$)-1] = 0;
   }
   ;
 

@@ -37,7 +37,7 @@
 
 static struct {
 	void *_mem_;
-	struct g_ir *ir;
+	struct g__ir *ir;
 	int mark[MARK_END];
 	struct node {
 		int type;
@@ -48,7 +48,7 @@ static struct {
 } state;
 
 static int validc(const char *s) {
-	if (!g_strlen(s)) {
+	if (!g__strlen(s)) {
 		return -1;
 	}
 	if (('_' != *s) && !isalpha(*s)) {
@@ -63,45 +63,45 @@ static int validc(const char *s) {
 	return 0;
 }
 
-const struct g_ir *g_ir_parse(const char *pathname) {
+const struct g__ir *g__ir_parse(const char *pathname) {
 	FILE *file;
 
-	assert( !state._mem_ && g_strlen(pathname) );
+	assert( !state._mem_ && g__strlen(pathname) );
 
 	file = fopen(pathname, "r");
 	if (!file) {
 		yyerror("unable to open '%s' for reading", pathname);
-		g_ir_destroy();
-		G_DEBUG(G_ERR_FILE);
+		g__ir_destroy();
+		G__DEBUG(G__ERR_FILE);
 		return 0;
 	}
-	state.ir = g_ir_malloc(sizeof (struct g_ir));
+	state.ir = g__ir_malloc(sizeof (struct g__ir));
 	if (!state.ir) {
 		yyerror("out of memory");
 		fclose(file);
-		g_ir_destroy();
-		G_DEBUG(0);
+		g__ir_destroy();
+		G__DEBUG(0);
 		return 0;
 	}
 	yyrestart(file);
 	if (yyparse()) {
 		fclose(file);
-		g_ir_destroy();
-		G_DEBUG(0);
+		g__ir_destroy();
+		G__DEBUG(0);
 		return 0;
 	}
 	fclose(file);
 	return state.ir;
 }
 
-void g_ir_destroy(void) {
+void g__ir_destroy(void) {
 	void **link;
 
 	link = state._mem_;
 	while (state._mem_) {
 		link = state._mem_;
 		state._mem_ = (*link);
-		G_FREE(link);
+		G__FREE(link);
 	}
 	yylex_destroy();
 	memset(&state, 0, sizeof (state));
@@ -111,13 +111,13 @@ void g_ir_destroy(void) {
  * Lexer/Parser Backend
  *---------------------------------------------------------------------------*/
 
-int g_ir_top(void) {
+int g__ir_top(void) {
 	struct node *node;
 	int i, n;
 
 	if (!state.mark[MARK_MODULE]) {
 		yyerror("missing .module sepcification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (!state.mark[MARK_PREFIX]) {
@@ -125,30 +125,30 @@ int g_ir_top(void) {
 	}
 	if (!state.mark[MARK_BATCH]) {
 		yyerror("missing .batch specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (!state.mark[MARK_ETA]) {
 		yyerror("missing .eta specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (!state.mark[MARK_INPUT]) {
 		yyerror("missing .input specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (!state.mark[MARK_OUTPUT]) {
 		yyerror("missing .output specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	n = 2 + state.mark[MARK_HIDDEN];
 	state.ir->layers = n;
-	state.ir->nodes = g_ir_malloc(n * sizeof (state.ir->nodes[0]));
+	state.ir->nodes = g__ir_malloc(n * sizeof (state.ir->nodes[0]));
 	if (!state.ir->nodes) {
 		yyerror("out of memory");
-		G_DEBUG(0);
+		G__DEBUG(0);
 		return 0;
 	}
 	i = 0;
@@ -182,15 +182,15 @@ int g_ir_top(void) {
 	return 0;
 }
 
-int g_ir_module(const char *s) {
+int g__ir_module(const char *s) {
 	if (state.mark[MARK_MODULE]) {
 		yyerror("duplicate .module specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	if (!g_strlen(s) || validc(s)) {
+	if (!g__strlen(s) || validc(s)) {
 		yyerror("invalid .module specification '%s' ", s);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	state.ir->module = s;
@@ -198,15 +198,15 @@ int g_ir_module(const char *s) {
 	return 0;
 }
 
-int g_ir_prefix(const char *s) {
+int g__ir_prefix(const char *s) {
 	if (state.mark[MARK_PREFIX]) {
 		yyerror("duplicate .prefix specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (validc(s)) {
 		yyerror("invalid .prefix specification '%s' ", s);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	state.ir->prefix = s;
@@ -214,49 +214,49 @@ int g_ir_prefix(const char *s) {
 	return 0;
 }
 
-int g_ir_precision(long	whole1,
-		   long fraction1,
-		   long precision1,
-		   long	whole2,
-		   long fraction2,
-		   long precision2) {
+int g__ir_precision(long whole1,
+		    long fraction1,
+		    long precision1,
+		    long whole2,
+		    long fraction2,
+		    long precision2) {
 	if (state.mark[MARK_PRECISION]) {
 		yyerror("duplicate .precision specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	if ((G_IR_PRECISION_FIXED == precision1) &&
+	if ((G__IR_PRECISION_FIXED == precision1) &&
 	    ((1 > whole1) || (0 > fraction1) ||
 	     (64 < (whole1 + fraction1)))) {
 		yyerror("invalid .precision 'FIXED [%ld, %ld]' ",
 			whole1,
 			fraction1);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	if ((G_IR_PRECISION_FIXED == precision2) &&
+	if ((G__IR_PRECISION_FIXED == precision2) &&
 	    ((1 > whole2) || (0 > fraction2) ||
 	     (64 < (whole2 + fraction2)))) {
 		yyerror("invalid .precision 'FIXED [%ld, %ld]' ",
 			whole2,
 			fraction2);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	state.ir->memory[G_IR_MEMORY_ACTIVATE].whole = (int)whole1;
-	state.ir->memory[G_IR_MEMORY_ACTIVATE].fraction = (int)fraction1;
-	state.ir->memory[G_IR_MEMORY_ACTIVATE].precision = (int)precision1;
-	state.ir->memory[G_IR_MEMORY_TRAIN].whole = (int)whole2;
-	state.ir->memory[G_IR_MEMORY_TRAIN].fraction = (int)fraction2;
-	state.ir->memory[G_IR_MEMORY_TRAIN].precision = (int)precision2;
+	state.ir->memory[G__IR_MEMORY_ACTIVATE].whole = (int)whole1;
+	state.ir->memory[G__IR_MEMORY_ACTIVATE].fraction = (int)fraction1;
+	state.ir->memory[G__IR_MEMORY_ACTIVATE].precision = (int)precision1;
+	state.ir->memory[G__IR_MEMORY_TRAIN].whole = (int)whole2;
+	state.ir->memory[G__IR_MEMORY_TRAIN].fraction = (int)fraction2;
+	state.ir->memory[G__IR_MEMORY_TRAIN].precision = (int)precision2;
 	state.mark[MARK_PRECISION] += 1;
 	return 0;
 }
 
-int g_ir_costfnc(long costfnc) {
+int g__ir_costfnc(long costfnc) {
 	if (state.mark[MARK_COSTFNC]) {
 		yyerror("duplicate .costfnc specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	state.ir->costfnc = (int)costfnc;
@@ -264,15 +264,15 @@ int g_ir_costfnc(long costfnc) {
 	return 0;
 }
 
-int g_ir_batch(long batch) {
+int g__ir_batch(long batch) {
 	if (state.mark[MARK_BATCH]) {
 		yyerror("duplicate .batch specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (MAX_BATCH < batch) {
 		yyerror("invalid .batch specification '%ld'", batch);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	state.ir->batch = (int)batch;
@@ -280,15 +280,15 @@ int g_ir_batch(long batch) {
 	return 0;
 }
 
-int g_ir_eta(double eta) {
+int g__ir_eta(double eta) {
 	if (state.mark[MARK_ETA]) {
 		yyerror("duplicate .eta specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if ((0.0 >= eta) || (1.0 < eta)) {
 		yyerror("invalid .eta specification '%f'", eta);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	state.ir->eta = eta;
@@ -296,23 +296,23 @@ int g_ir_eta(double eta) {
 	return 0;
 }
 
-int g_ir_input(long size) {
+int g__ir_input(long size) {
 	struct node *node;
 
 	if (state.mark[MARK_INPUT]) {
 		yyerror("duplicate .input specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (MAX_SIZE < size) {
 		yyerror("invalid .input specification '%ld'", size);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	node = g_ir_malloc(sizeof (struct node));
+	node = g__ir_malloc(sizeof (struct node));
 	if (!node) {
 		yyerror("out of memory");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	node->type = NODE_TYPE_INPUT;
@@ -323,23 +323,23 @@ int g_ir_input(long size) {
 	return 0;
 }
 
-int g_ir_output(long size, long activation) {
+int g__ir_output(long size, long activation) {
 	struct node *node;
 
 	if (state.mark[MARK_OUTPUT]) {
 		yyerror("duplicate .output specification");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	if (MAX_SIZE < size) {
 		yyerror("invalid .output specification '%ld'", size);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	node = g_ir_malloc(sizeof (struct node));
+	node = g__ir_malloc(sizeof (struct node));
 	if (!node) {
 		yyerror("out of memory");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	node->type = NODE_TYPE_OUTPUT;
@@ -351,18 +351,18 @@ int g_ir_output(long size, long activation) {
 	return 0;
 }
 
-int g_ir_hidden(long size, long activation) {
+int g__ir_hidden(long size, long activation) {
 	struct node *node;
 
 	if (MAX_SIZE < size) {
 		yyerror("invalid .hidden specification '%ld'", size);
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	node = g_ir_malloc(sizeof (struct node));
+	node = g__ir_malloc(sizeof (struct node));
 	if (!node) {
 		yyerror("out of memory");
-		G_DEBUG(G_ERR_SYNTAX);
+		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
 	node->type = NODE_TYPE_HIDDEN;
@@ -374,14 +374,14 @@ int g_ir_hidden(long size, long activation) {
 	return 0;
 }
 
-void *g_ir_malloc(size_t n) {
+void *g__ir_malloc(size_t n) {
 	void **link;
 
 	assert( n );
 
 	n += sizeof (link);
-	if (!(link = g_malloc(n))) {
-		G_DEBUG(0);
+	if (!(link = g__malloc(n))) {
+		G__DEBUG(0);
 		return 0;
 	}
 	memset(link, 0, n);
@@ -390,13 +390,13 @@ void *g_ir_malloc(size_t n) {
 	return (link + 1);
 }
 
-char *g_ir_strdup(const char *s_) {
+char *g__ir_strdup(const char *s_) {
 	char *s;
 
 	assert( s_ );
 
-	if (!(s = g_ir_malloc(g_strlen(s_) + 1))) {
-		G_DEBUG(0);
+	if (!(s = g__ir_malloc(g__strlen(s_) + 1))) {
+		G__DEBUG(0);
 		return 0;
 	}
 	strcpy(s, s_);

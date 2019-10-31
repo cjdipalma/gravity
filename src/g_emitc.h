@@ -15,11 +15,11 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _G_ANN_EMITC_H_
-#define _G_ANN_EMITC_H_
+#ifndef _G_EMITC_H_
+#define _G_EMITC_H_
 
 #include "g_ann.h"
 
-int g_emitc(const struct g_ann *ann);
+int g__emitc(const struct g__ann *ann);
 
-#endif /* _G_ANN_EMITC_H_ */
+#endif /* _G_EMITC_H_ */

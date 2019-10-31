@@ -20,78 +20,79 @@
 #include <unistd.h>
 #include "g_common.h"
 
-int g_debug_enabled;
+int g__debug_enabled;
 
-void g_sprintf(char *str, size_t size, const char *format, ...) {
+void g__sprintf(char *str, size_t size, const char *format, ...) {
 	va_list ap;
 
 	assert( str && size && format );
 
 	va_start(ap, format);
 	if (size <= (size_t)vsnprintf(str, size, format, ap)) {
-		G_DEBUG(G_ERR_SOFTWARE);
+		G__DEBUG(G__ERR_SOFTWARE);
 		assert( 0 );
 		exit(-1);
 	}
 	va_end(ap);
 }
 
-void *g_malloc(size_t n) {
+void *g__malloc(size_t n) {
 	void *p;
 
 	p = malloc(n);
 	if (!p) {
-		G_DEBUG(G_ERR_MEMORY);
+		G__DEBUG(G__ERR_MEMORY);
 		return 0;
 	}
 	return p;
 }
 
-const char *g_strdup(const char *s_) {
+const char *g__strdup(const char *s_) {
 	char *s;
 
-	s = g_malloc(g_strlen(s_) + 1);
+	s = g__malloc(g__strlen(s_) + 1);
 	if (!s) {
-		G_DEBUG(0);
+		G__DEBUG(0);
 		return 0;
 	}
-	memcpy(s, s_, g_strlen(s_));
-	s[g_strlen(s_)] = 0;
+	memcpy(s, s_, g__strlen(s_));
+	s[g__strlen(s_)] = 0;
 	return s;
 }
 
-const char *g_error(int e) {
+const char *g__error(int e) {
 	switch (e) {
-	case 0 /*-------*/ : return "^";
-	case G_ERR_MEMORY  : return "G_ERR_MEMORY";
-	case G_ERR_SYSTEM  : return "G_ERR_SYSTEM";
-	case G_ERR_SOFTWARE: return "G_ERR_SOFTWARE";
-	case G_ERR_SYNTAX  : return "G_ERR_SYNTAX";
-	case G_ERR_FILE    : return "G_ERR_FILE";
-	case G_ERR_JITC    : return "G_ERR_JITC";
+	case 0 /*--------*/ : return "^";
+	case G__ERR_MEMORY  : return "ERR_MEMORY";
+	case G__ERR_SYSTEM  : return "ERR_SYSTEM";
+	case G__ERR_ARGUMENT: return "ERR_ARGUMENT";
+	case G__ERR_SOFTWARE: return "ERR_SOFTWARE";
+	case G__ERR_SYNTAX  : return "ERR_SYNTAX";
+	case G__ERR_FILE    : return "ERR_FILE";
+	case G__ERR_JITC    : return "ERR_JITC";
 	}
-	return "G_ERR_UNKNOWN";
+	return "G__ERR_UNKNOWN";
 }
 
-const char *g_pathname_open(const char *tail) {
+const char *g__pathname_open(const char *tail) {
 	const char *tmpdir;
 	char *pathname;
 	size_t n;
 
-	tmpdir = g_strlen(getenv("TMPDIR")) ? getenv("TMPDIR") : ".";
-	n = g_strlen(tmpdir) + g_strlen(tail) + 32;
-	pathname = g_malloc(n);
+	tmpdir = g__strlen(getenv("TMPDIR")) ? getenv("TMPDIR") : ".";
+	n = g__strlen(tmpdir) + g__strlen(tail) + 32;
+	pathname = g__malloc(n);
 	if (!pathname) {
-		G_DEBUG(0);
+		G__DEBUG(0);
 		return 0;
 	}
-	g_sprintf(pathname, n, "%s/%x%x%s", tmpdir, rand(), rand(), tail);
+	g__sprintf(pathname, n, "%s/%x%x%s", tmpdir, rand(), rand(), tail);
 	return pathname;
 }
 
-void g_pathname_close(const char *pathname) {
-	if (g_strlen(pathname)) {
+void g__pathname_close(const char *pathname) {
+	if (g__strlen(pathname)) {
 		unlink(pathname);
-		G_FREE(pathname);
+		G__FREE(pathname);
 	}
 }

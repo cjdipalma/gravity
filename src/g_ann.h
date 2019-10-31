@@ -20,46 +20,46 @@
 
 #include "g_ir.h"
 
-#define G_ANN_PRECISION_NONE   G_IR_PRECISION_NONE
-#define G_ANN_PRECISION_FLOAT  G_IR_PRECISION_FLOAT
-#define G_ANN_PRECISION_DOUBLE G_IR_PRECISION_DOUBLE
-#define G_ANN_PRECISION_FIXED  G_IR_PRECISION_FIXED
+#define G__ANN_PRECISION_NONE   G__IR_PRECISION_NONE
+#define G__ANN_PRECISION_FLOAT  G__IR_PRECISION_FLOAT
+#define G__ANN_PRECISION_DOUBLE G__IR_PRECISION_DOUBLE
+#define G__ANN_PRECISION_FIXED  G__IR_PRECISION_FIXED
 
-#define G_ANN_MEMORY_ACTIVATE G_IR_MEMORY_ACTIVATE
-#define G_ANN_MEMORY_TRAIN    G_IR_MEMORY_TRAIN
-#define G_ANN_MEMORY_END      G_IR_MEMORY_END
+#define G__ANN_MEMORY_ACTIVATE G__IR_MEMORY_ACTIVATE
+#define G__ANN_MEMORY_TRAIN    G__IR_MEMORY_TRAIN
+#define G__ANN_MEMORY_END      G__IR_MEMORY_END
 
-#define G_ANN_PROGRAM_ACTIVATEX 0
-#define G_ANN_PROGRAM_ACTIVATE  1
-#define G_ANN_PROGRAM_BACKPROP  2
-#define G_ANN_PROGRAM_TRAIN     3
-#define G_ANN_PROGRAM_END       4
+#define G__ANN_PROGRAM_ACTIVATEX 0
+#define G__ANN_PROGRAM_ACTIVATE  1
+#define G__ANN_PROGRAM_BACKPROP  2
+#define G__ANN_PROGRAM_TRAIN     3
+#define G__ANN_PROGRAM_END       4
 
-#define G_ANN_PROGRAM_INST_RET         1
-#define G_ANN_PROGRAM_INST_RETARG      2
-#define G_ANN_PROGRAM_INST_BATCHLOOP   3
-#define G_ANN_PROGRAM_INST_CLEAR      11
-#define G_ANN_PROGRAM_INST_COPYX      12
-#define G_ANN_PROGRAM_INST_MUL1       13
-#define G_ANN_PROGRAM_INST_MUL2       14
-#define G_ANN_PROGRAM_INST_MUL3       15
-#define G_ANN_PROGRAM_INST_MULS       16
-#define G_ANN_PROGRAM_INST_ADD        17
-#define G_ANN_PROGRAM_INST_SUBY       18
-#define G_ANN_PROGRAM_INST_RELU      101
-#define G_ANN_PROGRAM_INST_LINEAR    102
-#define G_ANN_PROGRAM_INST_SOFTMAX   103
-#define G_ANN_PROGRAM_INST_SIGMOID   104
-#define G_ANN_PROGRAM_INST_RELUD    1001
-#define G_ANN_PROGRAM_INST_LINEARD  1002
-#define G_ANN_PROGRAM_INST_SOFTMAXD 1003
-#define G_ANN_PROGRAM_INST_SIGMOIDD 1004
+#define G__ANN_PROGRAM_INST_RET         1
+#define G__ANN_PROGRAM_INST_RETARG      2
+#define G__ANN_PROGRAM_INST_BATCHLOOP   3
+#define G__ANN_PROGRAM_INST_CLEAR      11
+#define G__ANN_PROGRAM_INST_COPYX      12
+#define G__ANN_PROGRAM_INST_MUL1       13
+#define G__ANN_PROGRAM_INST_MUL2       14
+#define G__ANN_PROGRAM_INST_MUL3       15
+#define G__ANN_PROGRAM_INST_MULS       16
+#define G__ANN_PROGRAM_INST_ADD        17
+#define G__ANN_PROGRAM_INST_SUBY       18
+#define G__ANN_PROGRAM_INST_RELU      101
+#define G__ANN_PROGRAM_INST_LINEAR    102
+#define G__ANN_PROGRAM_INST_SOFTMAX   103
+#define G__ANN_PROGRAM_INST_SIGMOID   104
+#define G__ANN_PROGRAM_INST_RELUD    1001
+#define G__ANN_PROGRAM_INST_LINEARD  1002
+#define G__ANN_PROGRAM_INST_SOFTMAXD 1003
+#define G__ANN_PROGRAM_INST_SIGMOIDD 1004
 
-struct g_ann {
+struct g__ann {
 	int layers;
 	const char *module;
 	const char *prefix;
-	struct g_ann_memory {
+	struct g__ann_memory {
 		int whole;
 		int fraction;
 		int precision;
@@ -71,10 +71,10 @@ struct g_ann {
 		uint64_t *d_;
 		uint64_t *w_;
 		uint64_t *b_;
-	} memory[G_ANN_MEMORY_END];
-	struct g_ann_program {
+	} memory[G__ANN_MEMORY_END];
+	struct g__ann_program {
 		int size;
-		struct g_ann_program_inst {
+		struct g__ann_program_inst {
 			int opc;
 			int whole;
 			int fraction;
@@ -84,11 +84,11 @@ struct g_ann {
 				double r;
 			} arg[5];
 		} *inst;
-	} program[G_ANN_PROGRAM_END];
+	} program[G__ANN_PROGRAM_END];
 };
 
-struct g_ann *g_ann_open(const struct g_ir *ir);
+struct g__ann *g__ann_open(const struct g__ir *ir);
 
-void g_ann_close(struct g_ann *an);
+void g__ann_close(struct g__ann *an);
 
-#endif /* _G_ANN_H_ */
+#endif /* _G__ANN_H_ */

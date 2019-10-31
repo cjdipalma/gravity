@@ -18,20 +18,21 @@
 #include "g_emitc.h"
 
 int main(int argc, char *argv[]) {
-	const struct g_ir *ir;
+	const struct g__ir *ir;
 	const char *pathname;
-	struct g_ann *ann;
+	struct g__ann *ann;
 	int i;
 
 	pathname = 0;
+	yyerroron = 1;
 	for (i=1; i<argc; ++i) {
 		if (!strcmp("--version", argv[i])) {
 			printf("The Gravity Compiler %d.%d\n",
-			       G_VERSION / 10,
-			       G_VERSION % 10);
+			       G__VERSION / 10,
+			       G__VERSION % 10);
 		}
 		else if (!strcmp("--debug", argv[i])) {
-			g_debug_enabled = 1;
+			g__debug_enabled = 1;
 		}
 		else {
 			if (pathname) {
@@ -45,19 +46,19 @@ int main(int argc, char *argv[]) {
 		printf("usage: gravity [--verion][--debug] input\n");
 		return -1;
 	}
-	ir = g_ir_parse(pathname);
+	ir = g__ir_parse(pathname);
 	if (!ir) {
-		G_DEBUG(0);
+		G__DEBUG(0);
 		return -1;
 	}
-	ann = g_ann_open(ir);
-	g_ir_destroy();
-	if (!ann || g_emitc(ann)) {
-		g_ann_close(ann);
+	ann = g__ann_open(ir);
+	g__ir_destroy();
+	if (!ann || g__emitc(ann)) {
+		g__ann_close(ann);
 		fprintf(stderr, "gravity compiler error (run with --debug)\n");
-		G_DEBUG(0);
+		G__DEBUG(0);
 		return -1;
 	}
-	g_ann_close(ann);
+	g__ann_close(ann);
 	return 0;
 }

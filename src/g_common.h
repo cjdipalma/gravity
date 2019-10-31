@@ -30,60 +30,58 @@
 #include <time.h>
 #include <math.h>
 
-#define G_VERSION 10
+#define G__VERSION 10
 
-#define G_ERR_MEMORY   -100
-#define G_ERR_SYSTEM   -101
-#define G_ERR_SOFTWARE -102
-#define G_ERR_SYNTAX   -103
-#define G_ERR_FILE     -104
-#define G_ERR_JITC     -105
+#define G__ERR_MEMORY   -100
+#define G__ERR_SYSTEM   -101
+#define G__ERR_ARGUMENT -102
+#define G__ERR_SOFTWARE -103
+#define G__ERR_SYNTAX   -104
+#define G__ERR_FILE     -105
+#define G__ERR_JITC     -106
 
-#define G_MIN(a,b) ((a) < (b) ? (a) : (b))
-#define G_MAX(a,b) ((a) > (b) ? (a) : (b))
-#define G_DUP(a,b) (0 == ((a) % (b)) ? (a) / (b) : (a) / (b) + 1)
+#define G__MIN(a,b) ((a) < (b) ? (a) : (b))
+#define G__MAX(a,b) ((a) > (b) ? (a) : (b))
 
-#define G_INLINE __attribute__((__unused__)) static
-
-#define G_UNUSED(x) do {			\
+#define G__UNUSED(x) do {			\
 		(void)(x);			\
 	} while (0)
 
-#define G_DEBUG(e) do {				\
-		if (g_debug_enabled) {		\
+#define G__DEBUG(e) do {			\
+		if (g__debug_enabled) {		\
 			fprintf(stderr,		\
 				"error:"	\
 				" %s:%d: %s\n",	\
 				__FILE__,	\
 				__LINE__,	\
-				g_error(e));	\
+				g__error(e));	\
 		}				\
 	} while (0)
 
-#define G_FREE(m) do {				\
+#define G__FREE(m) do {				\
 		if (m) {			\
 			free((void *)(m));	\
 			(m) = 0;		\
 		}				\
 	} while (0)
 
-extern int g_debug_enabled;
+extern int g__debug_enabled;
 
-void g_free(void *p);
+void g__free(void *p);
 
-void g_sprintf(char *str, size_t size, const char *format, ...);
+void g__sprintf(char *str, size_t size, const char *format, ...);
 
-void *g_malloc(size_t n);
+void *g__malloc(size_t n);
 
-const char *g_strdup(const char *s);
+const char *g__strdup(const char *s);
 
-const char *g_error(int e);
+const char *g__error(int e);
 
-const char *g_pathname_open(const char *tail);
+const char *g__pathname_open(const char *tail);
 
-void g_pathname_close(const char *pathname);
+void g__pathname_close(const char *pathname);
 
-G_INLINE size_t g_strlen(const char *s) {
+__attribute__((__unused__)) static size_t g__strlen(const char *s) {
 	return s ? strlen(s) : 0;
 }
 
