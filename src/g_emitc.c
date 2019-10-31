@@ -733,6 +733,9 @@ static int export(const struct g_ann *ann, FILE *file1, FILE *file2) {
 	if (P(file2,
 	      "#ifndef _%s_H_\n"
 	      "#define _%s_H_\n\n"
+	      "#ifdef __cplusplus\n"
+	      "extern \"C\" {\n"
+	      "#endif /* __cplusplus */\n\n"
 	      "#define _%s_VERSION %d\n"
 	      "#define _%s_ACTIVATE_MEMORY %lu\n"
 	      "#define _%s_TRAIN_MEMORY %lu\n\n",
@@ -755,6 +758,9 @@ static int export(const struct g_ann *ann, FILE *file1, FILE *file2) {
 	      precision(&prog2->inst[0]),
 	      precision(&prog2->inst[0])) ||
 	    P(file2,
+	      "#ifdef __cplusplus\n"
+	      "}\n"
+	      "#endif /* __cplusplus */\n\n"
 	      "#endif /* _%s_H_ */\n",
 	      prefix)) {
 		G_FREE(prefix);
