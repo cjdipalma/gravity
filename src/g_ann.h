@@ -29,23 +29,25 @@
 #define G__ANN_MEMORY_TRAIN    G__IR_MEMORY_TRAIN
 #define G__ANN_MEMORY_END      G__IR_MEMORY_END
 
-#define G__ANN_PROGRAM_ACTIVATEX 0
-#define G__ANN_PROGRAM_ACTIVATE  1
-#define G__ANN_PROGRAM_BACKPROP  2
-#define G__ANN_PROGRAM_TRAIN     3
-#define G__ANN_PROGRAM_END       4
+#define G__ANN_PROGRAM_INITIALIZE 0
+#define G__ANN_PROGRAM_ACTIVATEX  1
+#define G__ANN_PROGRAM_ACTIVATE   2
+#define G__ANN_PROGRAM_BACKPROP   3
+#define G__ANN_PROGRAM_TRAIN      4
+#define G__ANN_PROGRAM_END        5
 
 #define G__ANN_PROGRAM_INST_RET         1
 #define G__ANN_PROGRAM_INST_RETARG      2
 #define G__ANN_PROGRAM_INST_BATCHLOOP   3
-#define G__ANN_PROGRAM_INST_CLEAR      11
-#define G__ANN_PROGRAM_INST_COPYX      12
-#define G__ANN_PROGRAM_INST_MUL1       13
-#define G__ANN_PROGRAM_INST_MUL2       14
-#define G__ANN_PROGRAM_INST_MUL3       15
-#define G__ANN_PROGRAM_INST_MULS       16
-#define G__ANN_PROGRAM_INST_ADD        17
-#define G__ANN_PROGRAM_INST_SUBY       18
+#define G__ANN_PROGRAM_INST_RANDOM     11
+#define G__ANN_PROGRAM_INST_CLEAR      12
+#define G__ANN_PROGRAM_INST_COPYX      13
+#define G__ANN_PROGRAM_INST_MUL1       14
+#define G__ANN_PROGRAM_INST_MUL2       15
+#define G__ANN_PROGRAM_INST_MUL3       16
+#define G__ANN_PROGRAM_INST_MUL4       17
+#define G__ANN_PROGRAM_INST_ADD        18
+#define G__ANN_PROGRAM_INST_SUBY       19
 #define G__ANN_PROGRAM_INST_RELU      101
 #define G__ANN_PROGRAM_INST_LINEAR    102
 #define G__ANN_PROGRAM_INST_SOFTMAX   103
@@ -63,14 +65,13 @@ struct g__ann {
 		int whole;
 		int fraction;
 		int precision;
-		uint64_t unit;
-		uint64_t size;
-		uint64_t *w;
-		uint64_t *b;
-		uint64_t *a_;
-		uint64_t *d_;
-		uint64_t *w_;
-		uint64_t *b_;
+		uint64_t size; /* bytes */
+		uint64_t *w;   /* byte address */
+		uint64_t *b;   /* byte address */
+		uint64_t *a_;  /* byte address */
+		uint64_t *d_;  /* byte address */
+		uint64_t *w_;  /* byte address */
+		uint64_t *b_;  /* byte address */
 	} memory[G__ANN_MEMORY_END];
 	struct g__ann_program {
 		int size;

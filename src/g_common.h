@@ -77,9 +77,7 @@ const char *g__strdup(const char *s);
 
 const char *g__error(int e);
 
-const char *g__pathname_open(const char *tail);
-
-void g__pathname_close(const char *pathname);
+void g__unlink(const char *pathname);
 
 __attribute__((__unused__)) static size_t g__strlen(const char *s) {
 	return s ? strlen(s) : 0;

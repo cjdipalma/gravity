@@ -48,17 +48,16 @@ static struct {
 } state;
 
 static int validc(const char *s) {
-	if (!g__strlen(s)) {
-		return -1;
-	}
-	if (('_' != *s) && !isalpha(*s)) {
-		return -1;
-	}
-	while (*s) {
-		if (('_' != *s) && !isalnum(*s)) {
+	if (*s) {
+		if (('_' != *s) && !isalpha(*s)) {
 			return -1;
 		}
-		++s;
+		while (*s) {
+			if (('_' != *s) && !isalnum(*s)) {
+				return -1;
+			}
+			++s;
+		}
 	}
 	return 0;
 }

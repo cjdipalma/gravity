@@ -29,10 +29,8 @@ struct g__ann_program_inst *newinst(struct g__ann_program *prog) {
 	return &prog->inst[prog->size++];
 }
 
-static size_t memory_unit(int whole, int fraction, int precision) {
-	G__UNUSED(whole);
-	G__UNUSED(fraction);
-	switch (precision) {
+static size_t unit(const struct g__ann_memory *memory) {
+	switch (memory->precision) {
 	case G__IR_PRECISION_FLOAT : return 4;
 	case G__IR_PRECISION_DOUBLE: return 8;
 	case G__IR_PRECISION_FIXED : break;/* FIX : not implemented */
@@ -55,21 +53,21 @@ static int emit_memory(struct g__ann *ann, const struct g__ir *ir) {
 	mem->whole = ir->memory[G__IR_MEMORY_ACTIVATE].whole;
 	mem->fraction = ir->memory[G__IR_MEMORY_ACTIVATE].fraction;
 	mem->precision = ir->memory[G__IR_MEMORY_ACTIVATE].precision;
-	mem->unit = memory_unit(mem->whole, mem->fraction, mem->precision);
+	for (l=1; l<ir->layers; ++l) {
+		n = (uint64_t)ir->nodes[l].size;
+		m = (uint64_t)ir->nodes[l - 1].size;
+		/* w */
+		mem->w[l] = mem->size;
+		mem->size += unit(mem) * n * m;
+		/* b */
+		mem->b[l] = mem->size;
+		mem->size += unit(mem) * n * 1;
+	}
 	for (l=0; l<ir->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		/* a_ */
 		mem->a_[l] = mem->size;
-		mem->size += n * 1;
-		if (l) {
-			m = (uint64_t)ir->nodes[l - 1].size;
-			/* w */
-			mem->w[l] = mem->size;
-			mem->size += n * m;
-			/* b */
-			mem->b[l] = mem->size;
-			mem->size += n * 1;
-		}
+		mem->size += unit(mem) * n * 1;
 	}
 
 	/* train */
@@ -78,30 +76,87 @@ static int emit_memory(struct g__ann *ann, const struct g__ir *ir) {
 	mem->whole = ir->memory[G__IR_MEMORY_TRAIN].whole;
 	mem->fraction = ir->memory[G__IR_MEMORY_TRAIN].fraction;
 	mem->precision = ir->memory[G__IR_MEMORY_TRAIN].precision;
-	mem->unit = memory_unit(mem->whole, mem->fraction, mem->precision);
+	for (l=1; l<ir->layers; ++l) {
+		n = (uint64_t)ir->nodes[l].size;
+		m = (uint64_t)ir->nodes[l - 1].size;
+		/* w */
+		mem->w[l] = mem->size;
+		mem->size += unit(mem) * n * m;
+		/* b */
+		mem->b[l] = mem->size;
+		mem->size += unit(mem) * n * 1;
+	}
 	for (l=0; l<ir->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		/* a_ */
 		mem->a_[l] = mem->size;
-		mem->size += n * 1;
+		mem->size += unit(mem) * n * 1;
 		/* d_ */
 		mem->d_[l] = mem->size;
 		mem->size += n * 1;
 		if (l) {
 			m = (uint64_t)ir->nodes[l - 1].size;
-			/* w */
-			mem->w[l] = mem->size;
-			mem->size += n * m;
-			/* b */
-			mem->b[l] = mem->size;
-			mem->size += n * 1;
 			/* w_ */
 			mem->w_[l] = mem->size;
-			mem->size += n * m;
+			mem->size += unit(mem) * n * m;
 			/* b_ */
 			mem->b_[l] = mem->size;
-			mem->size += n * 1;
+			mem->size += unit(mem) * n * 1;
 		}
+	}
+	return 0;
+}
+
+static int emit_program_initialize(struct g__ann *ann,
+				   const struct g__ir *ir,
+				   int mem_,
+				   int prog_) {
+	struct g__ann_memory *mem;
+	struct g__ann_program *prog;
+	struct g__ann_program_inst *inst;
+	uint64_t n, m;
+	int l;
+
+	/* setup */
+
+	mem = &ann->memory[mem_];
+	prog = &ann->program[prog_];
+
+	/* return */
+
+	inst = newinst(prog);
+	inst->opc = G__ANN_PROGRAM_INST_RET;
+	inst->whole = mem->whole;
+	inst->fraction = mem->fraction;
+	inst->precision = mem->precision;
+
+	/*
+	 * w[*]
+	 *   w[*] = random [-6.0 / (n + m) -- +6.0 / (n + m)]
+	 *   b[*] = 0
+	 */
+
+	for (l=1; l<ann->layers; ++l) {
+		n = ir->nodes[l].size;
+		m = ir->nodes[l - 1].size;
+		/*--*/
+		inst = newinst(prog);
+		inst->opc = G__ANN_PROGRAM_INST_RANDOM;
+		inst->arg[0].i = mem->w[l];
+		inst->arg[1].r = -6.0 / (n + m);
+		inst->arg[2].r = +6.0 / (n + m);
+		inst->arg[3].i = n * m;
+		inst->whole = mem->whole;
+		inst->fraction = mem->fraction;
+		inst->precision = mem->precision;
+		/*--*/
+		inst = newinst(prog);
+		inst->opc = G__ANN_PROGRAM_INST_CLEAR;
+		inst->arg[0].i = mem->b[l];
+		inst->arg[1].i = n * 1;
+		inst->whole = mem->whole;
+		inst->fraction = mem->fraction;
+		inst->precision = mem->precision;
 	}
 	return 0;
 }
@@ -122,8 +177,8 @@ static int emit_program_activate(struct g__ann *ann,
 	prog = &ann->program[prog_];
 
 	/*
-         * return y:
-         *   a[L]
+         * return:
+         *   y := a_[L]
          */
 
 	l = ann->layers;
@@ -136,8 +191,8 @@ static int emit_program_activate(struct g__ann *ann,
 	inst->precision = mem->precision;
 
         /*
-         * a[*]:
-         *    a[0] := x
+         * a_[*]:
+         *    a_[0] := x
          */
 
 	n = ir->nodes[0].size;
@@ -145,14 +200,16 @@ static int emit_program_activate(struct g__ann *ann,
 	inst = newinst(prog);
 	inst->opc = G__ANN_PROGRAM_INST_COPYX;
 	inst->arg[0].i = mem->a_[0];
-	inst->arg[1].i = mem->unit * n;
+	inst->arg[1].i = n;
+	inst->whole = mem->whole;
+	inst->fraction = mem->fraction;
+	inst->precision = mem->precision;
 
 	/*
-         * a[*]:
-         *    a[l] := RELU( w[l] * a[l - 1] + b[l] )
-         *    a[L] := fnc( w[l] * a[l - 1] + b[l] )
+         * a_[*]:
+         *    a_[l] := activation( w[l] * a_[l - 1] + b[l] )
          *
-         * fnc:
+         * activation:
          *    RELU
          *    LINEAR
          *    SOFTMAX
@@ -218,8 +275,8 @@ static int emit_program_backprop(struct g__ann *ann,
 	inst->precision = mem->precision;
 
 	/*
-	 * d[*]:
-	 *    d[L] := a[L] − y
+	 * d_[*]:
+	 *    d_[L] := a_[L] − y
 	 */
 
 	l = ann->layers - 1;
@@ -246,11 +303,12 @@ static int emit_program_backprop(struct g__ann *ann,
 	inst->precision = mem->precision;
 
 	/*
-         * d[*]:
-         *    d[l] := (w[l+1]' * d[l+1]) ⊙ σ′(z[l])
+         * d_[*]:
+         *    d_[l] := (w[l+1]' * d_[l+1]) ⊙ σ′(a_[l])
+         *    d_[1] := (w[l+1]' * d_[l+1])
          */
 
-	while (1 < l) {
+	while (l) {
 		n = ir->nodes[l].size;
 		m = ir->nodes[l - 1].size;
 		if (G__IR_ACTIVATION_SOFTMAX == ir->nodes[l - 1].activation) {
@@ -275,23 +333,25 @@ static int emit_program_backprop(struct g__ann *ann,
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
 		/*--*/
-		inst = newinst(prog);
-		inst->opc = 1000 + ir->nodes[l - 1].activation;
-		inst->arg[0].i = mem->d_[l - 1];
-		inst->arg[1].i = mem->a_[l - 1];
-		inst->arg[2].i = m;
-		inst->whole = mem->whole;
-		inst->fraction = mem->fraction;
-		inst->precision = mem->precision;
+		if (G__IR_ACTIVATION_NONE != ir->nodes[l - 1].activation) {
+			inst = newinst(prog);
+			inst->opc = 1000 + ir->nodes[l - 1].activation;
+			inst->arg[0].i = mem->d_[l - 1];
+			inst->arg[1].i = mem->a_[l - 1];
+			inst->arg[2].i = m;
+			inst->whole = mem->whole;
+			inst->fraction = mem->fraction;
+			inst->precision = mem->precision;
+		}
 		--l;
 	}
 
 	/*
-         * w[*]:
-         *    w[l] := w[l] + d[l] * a[l - 1]'
-         *
-         * b[*]:
-         *    b[l] := b[l] + d[l]
+         * b_[*]:
+         *    b_[l] := b_[l] + d_[l]
+	 *
+         * w_[*]:
+         *    w_[l] := w_[l] + d_[l] * a_[l - 1]
          */
 
 	for (l=1; l<ann->layers; ++l) {
@@ -319,15 +379,14 @@ static int emit_program_backprop(struct g__ann *ann,
 		inst->precision = mem->precision;
 	}
 
-
 	/*
 	 * w[*]:
-	 *    w[l] := (η / k) * w[l]
-	 *    w[l] := w[l] - w[l]
+	 *    w_[l] := (η / k) * w_[l]
+	 *    w[l] := w[l] - w_[l]
 	 *
 	 * b[*]:
-	 *    b[l] := (η / k) * b[l]
-	 *    b[l] := b[l] - b[l]
+	 *    b_[l] := (η / k) * b_[l]
+	 *    b[l] := b[l] - b_[l]
 	 */
 
         for (l=1; l<ann->layers; ++l) {
@@ -335,37 +394,21 @@ static int emit_program_backprop(struct g__ann *ann,
 		m = ir->nodes[l - 1].size;
 		/*--*/
 		inst = newinst(prog);
-		inst->opc = G__ANN_PROGRAM_INST_MULS;
-		inst->arg[0].i = mem->w_[l];
-		inst->arg[1].i = n * m;
-		inst->arg[2].r = -((double)ir->eta / (double)ir->batch);
-		inst->whole = mem->whole;
-		inst->fraction = mem->fraction;
-		inst->precision = mem->precision;
-		/*--*/
-		inst = newinst(prog);
-		inst->opc = G__ANN_PROGRAM_INST_ADD;
+		inst->opc = G__ANN_PROGRAM_INST_MUL4;
 		inst->arg[0].i = mem->w[l];
 		inst->arg[1].i = mem->w_[l];
-		inst->arg[2].i = n * m;
-		inst->whole = mem->whole;
-		inst->fraction = mem->fraction;
-		inst->precision = mem->precision;
-		/*--*/
-		inst = newinst(prog);
-		inst->opc = G__ANN_PROGRAM_INST_MULS;
-		inst->arg[0].i = mem->b_[l];
-		inst->arg[1].i = n * 1;
 		inst->arg[2].r = -((double)ir->eta / (double)ir->batch);
+		inst->arg[3].i = n * m;
 		inst->whole = mem->whole;
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
 		/*--*/
 		inst = newinst(prog);
-		inst->opc = G__ANN_PROGRAM_INST_ADD;
+		inst->opc = G__ANN_PROGRAM_INST_MUL4;
 		inst->arg[0].i = mem->b[l];
 		inst->arg[1].i = mem->b_[l];
-		inst->arg[2].i = n * 1;
+		inst->arg[2].r = -((double)ir->eta / (double)ir->batch);
+		inst->arg[3].i = n * 1;
 		inst->whole = mem->whole;
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
@@ -398,8 +441,8 @@ static int emit_program_train(struct g__ann *ann,
 
 	/*
          * adjustments:
-         *   w[*] := 0
-         *   b[*] := 0
+         *   w_[*] := 0
+         *   b_[*] := 0
          */
 
 	for (l=1; l<ann->layers; ++l) {
@@ -409,12 +452,18 @@ static int emit_program_train(struct g__ann *ann,
 		inst = newinst(prog);
 		inst->opc = G__ANN_PROGRAM_INST_CLEAR;
 		inst->arg[0].i = mem->w_[l];
-		inst->arg[1].i = mem->unit * n * m;
+		inst->arg[1].i = n * m;
+		inst->whole = mem->whole;
+		inst->fraction = mem->fraction;
+		inst->precision = mem->precision;
 		/*--*/
 		inst = newinst(prog);
 		inst->opc = G__ANN_PROGRAM_INST_CLEAR;
 		inst->arg[0].i = mem->b_[l];
-		inst->arg[1].i = mem->unit * n * 1;
+		inst->arg[1].i = n * 1;
+		inst->whole = mem->whole;
+		inst->fraction = mem->fraction;
+		inst->precision = mem->precision;
         }
 
 	/* batch training loop (x -> y) */
@@ -432,7 +481,11 @@ static int emit_program_train(struct g__ann *ann,
 }
 
 static int emit_program(struct g__ann *ann, const struct g__ir *ir) {
-	if (emit_program_activate(ann,
+	if (emit_program_initialize(ann,
+				    ir,
+				    G__ANN_MEMORY_TRAIN,
+				    G__ANN_PROGRAM_INITIALIZE) ||
+	    emit_program_activate(ann,
 				  ir,
 				  G__ANN_MEMORY_ACTIVATE,
 				  G__ANN_PROGRAM_ACTIVATEX) ||

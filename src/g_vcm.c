@@ -69,26 +69,29 @@ static int compile(const char *input, const char *output) {
 }
 
 g__vcm_t g__vcm_open(const char *pathname) {
-	const char *output;
+	const char *tmp, output[64];
 	struct g__vcm *vcm;
 
 	assert( g__strlen(pathname) );
 
-	output = g__pathname_open(".so");
-	if (!output || compile(pathname, output)) {
-		g__pathname_close(output);
+        tmp = getenv("TMPDIR");
+        tmp = tmp ? tmp : getenv("TMP");
+        tmp = tmp ? tmp : getenv("TEMP");
+	tmp = tmp ? tmp : ".";
+	g__sprintf((char *)output, sizeof (output), "%s/_%x_.so", tmp, rand());
+	if (compile(pathname, output)) {
 		G__DEBUG(0);
 		return 0;
 	}
 	vcm = g__malloc(sizeof (struct g__vcm));
 	if (!vcm) {
-		g__pathname_close(output);
+		g__unlink(output);
 		G__DEBUG(0);
 		return 0;
 	}
 	memset(vcm, 0, sizeof (struct g__vcm));
 	vcm->handle = dlopen(output, RTLD_LAZY | RTLD_LOCAL);
-	g__pathname_close(output);
+	g__unlink(output);
 	if (!vcm->handle) {
 		g__vcm_close(vcm);
 		G__DEBUG(G__ERR_SYSTEM);

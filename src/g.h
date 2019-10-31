@@ -18,6 +18,8 @@
 #ifndef _G_H_
 #define _G_H_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,9 +31,21 @@ typedef struct g *g_t;
 
 int g_version(void);
 
-g_t g_open(const char *program);
+void g_debug(int enabled);
+
+g_t g_open(const char *precision,
+	   const char *costfnc,
+	   const char *batch,
+	   const char *eta,
+	   const char *input,
+	   const char *output,
+	   /* hidden */ ...);
 
 void g_close(g_t g);
+
+size_t g_activate_memory(g_t g);
+
+size_t g_train_memory(g_t g);
 
 void *g_activate(g_t g, const void *x);
 

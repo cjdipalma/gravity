@@ -74,25 +74,8 @@ const char *g__error(int e) {
 	return "G__ERR_UNKNOWN";
 }
 
-const char *g__pathname_open(const char *tail) {
-	const char *tmpdir;
-	char *pathname;
-	size_t n;
-
-	tmpdir = g__strlen(getenv("TMPDIR")) ? getenv("TMPDIR") : ".";
-	n = g__strlen(tmpdir) + g__strlen(tail) + 32;
-	pathname = g__malloc(n);
-	if (!pathname) {
-		G__DEBUG(0);
-		return 0;
-	}
-	g__sprintf(pathname, n, "%s/%x%x%s", tmpdir, rand(), rand(), tail);
-	return pathname;
-}
-
-void g__pathname_close(const char *pathname) {
+void g__unlink(const char *pathname) {
 	if (g__strlen(pathname)) {
-		unlink(pathname);
-		G__FREE(pathname);
+		/*unlink(pathname);*/
 	}
 }

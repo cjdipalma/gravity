@@ -114,13 +114,39 @@ static int inst_batchloop(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
+static int inst_random(const struct g__ann_program_inst *inst, FILE *file) {
+	if (P(file,
+	      "  { /* RANDOM */\n"
+	      "    %s r, *z = (%s *)( m_ + %lu );\n"
+	      "    %s i;\n"
+	      "    for(i=0; i<%lu; ++i) {\n"
+	      "      r = (%s)rand() / RAND_MAX;\n"
+	      "      z[i] = %f + r * (%f - %f);\n"
+	      "    }\n"
+	      "  }\n\n",
+	      precision(inst),
+	      precision(inst),
+	      UL(inst->arg[0].i),
+	      type(inst->arg[3].i),
+	      UL(inst->arg[3].i),
+	      precision(inst),
+	      inst->arg[1].r,
+	      inst->arg[2].r,
+	      inst->arg[1].r)) {
+		G__DEBUG(0);
+		return -1;
+	}
+	return 0;
+}
+
 static int inst_clear(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
 	      "  { /* CLEAR */\n"
-	      "    memset(m_ + %lu, 0, %lu);\n"
+	      "    memset(m_ + %lu, 0, %lu * sizeof (%s));\n"
 	      "  }\n\n",
 	      UL(inst->arg[0].i),
-	      UL(inst->arg[1].i))) {
+	      UL(inst->arg[1].i),
+	      precision(inst))) {
 		G__DEBUG(0);
 		return -1;
 	}
@@ -130,10 +156,11 @@ static int inst_clear(const struct g__ann_program_inst *inst, FILE *file) {
 static int inst_copyx(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
 	      "  { /* COPYX */\n"
-	      "    memcpy(m_ + %lu, x_, %lu);\n"
+	      "    memcpy(m_ + %lu, x_, %lu * sizeof (%s));\n"
 	      "  }\n\n",
 	      UL(inst->arg[0].i),
-	      UL(inst->arg[1].i))) {
+	      UL(inst->arg[1].i),
+	      precision(inst))) {
 		G__DEBUG(0);
 		return -1;
 	}
@@ -241,21 +268,25 @@ static int inst_mul3(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_muls(const struct g__ann_program_inst *inst, FILE *file) {
+static int inst_mul4(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
-	      "  { /* MULS */\n"
+	      "  { /* MUL4 */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
+	      "    const %s *B = (const %s *)( m_ + %lu );\n"
 	      "    %s i;\n",
 	      precision(inst),
 	      precision(inst),
 	      UL(inst->arg[0].i),
-	      type(inst->arg[1].i)) ||
+	      precision(inst),
+	      precision(inst),
+	      UL(inst->arg[1].i),
+	      type(inst->arg[3].i)) ||
 	    P(file,
 	      "    for (i=0; i<%lu; ++i) {\n"
-	      "      za[i] += %f;\n"
+	      "      za[i] += B[i] * %f;\n"
 	      "    }\n"
 	      "  }\n\n",
-	      UL(inst->arg[1].i),
+	      UL(inst->arg[3].i),
 	      inst->arg[2].r)) {
 		G__DEBUG(0);
 		return -1;
@@ -325,7 +356,7 @@ static int inst_relu(const struct g__ann_program_inst *inst, FILE *file) {
 	    P(file,
 	      "    for (i=0; i<%lu; ++i) {\n"
 	      "      if (0.0 >= za[i]) {\n"
-	      "	       za[i] = 0.0;\n"
+	      "        za[i] = 0.0;\n"
 	      "      }\n"
 	      "    }\n"
 	      "  }\n\n",
@@ -482,6 +513,12 @@ static int program(const struct g__ann_program *program, FILE *file) {
 				return -1;
 			}
 		}
+		else if (G__ANN_PROGRAM_INST_RANDOM == inst->opc) {
+			if (inst_random(inst, file)) {
+				G__DEBUG(0);
+				return -1;
+			}
+		}
 		else if (G__ANN_PROGRAM_INST_CLEAR == inst->opc) {
 			if (inst_clear(inst, file)) {
 				G__DEBUG(0);
@@ -512,8 +549,8 @@ static int program(const struct g__ann_program *program, FILE *file) {
 				return -1;
 			}
 		}
-		else if (G__ANN_PROGRAM_INST_MULS == inst->opc) {
-			if (inst_muls(inst, file)) {
+		else if (G__ANN_PROGRAM_INST_MUL4 == inst->opc) {
+			if (inst_mul4(inst, file)) {
 				G__DEBUG(0);
 				return -1;
 			}
@@ -619,6 +656,7 @@ static int header(const struct g__ann *ann, FILE *file, int includes) {
 	}
 	if (includes) {
 		if (P(file,
+		      "#include <stdlib.h>\n"
 		      "#include <string.h>\n"
 		      "#include <math.h>\n"
 		      "#include \"%s.h\"\n\n",
@@ -626,6 +664,19 @@ static int header(const struct g__ann *ann, FILE *file, int includes) {
 			G__DEBUG(0);
 			return -1;
 		}
+	}
+	return 0;
+}
+
+static int initialize(const struct g__ann *ann, FILE *file) {
+	const struct g__ann_program *prog;
+
+	prog = &ann->program[G__ANN_PROGRAM_INITIALIZE];
+	if (P(file, "static void _initialize_(char *m_) {\n") ||
+	    program(prog, file) ||
+	    P(file, "}\n\n")) {
+		G__DEBUG(0);
+		return -1;
 	}
 	return 0;
 }
@@ -694,35 +745,53 @@ static int train(const struct g__ann *ann, FILE *file) {
 }
 
 static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
-	const struct g__ann_program *prog1;
-	const struct g__ann_program *prog2;
+	const struct g__ann_program_inst *inst1, *inst2;
+	const struct g__ann_memory *mem1, *mem2;
 	const char *prefix;
-	uint64_t n1, n2;
 
-	prog1 = &ann->program[G__ANN_PROGRAM_ACTIVATEX];
-	prog2 = &ann->program[G__ANN_PROGRAM_TRAIN];
-	n1  = ann->memory[G__ANN_MEMORY_ACTIVATE].unit;
-	n1 *= ann->memory[G__ANN_MEMORY_ACTIVATE].size;
-	n2  = ann->memory[G__ANN_MEMORY_TRAIN].unit;
-	n2 *= ann->memory[G__ANN_MEMORY_TRAIN].size;
+	inst1 = &ann->program[G__ANN_PROGRAM_ACTIVATE].inst[0];
+	inst2 = &ann->program[G__ANN_PROGRAM_TRAIN].inst[0];
+	mem1 = &ann->memory[G__ANN_MEMORY_ACTIVATE];
+	mem2 = &ann->memory[G__ANN_MEMORY_TRAIN];
 	prefix = capitalize(ann->prefix);
 
 	/* C file */
 
 	if (P(file1,
-	      "%s *%s_activate(char *m_, const %s *x_) {\n"
-	      "  return _activatex_(m_, x_);\n"
+	      "int %s_version(void) {\n"
+	      "  return %d;\n"
 	      "}\n\n",
-	      precision(&prog1->inst[0]),
-	      ann->prefix,
-	      precision(&prog1->inst[0])) ||
+	      prefix,
+	      G__VERSION) ||
 	    P(file1,
-	      "void %s_train(char *m_, const %s *x_, const %s *y_) {\n"
-	      "  _train_(m_, x_, y_);\n"
+	      "size_t %s_activate_memory(void) {\n"
+	      "  return %lu * sizeof (%s);\n"
 	      "}\n\n",
-	      ann->prefix,
-	      precision(&prog2->inst[0]),
-	      precision(&prog2->inst[0]))) {
+	      prefix,
+	      UL(mem1->size),
+	      precision(inst1)) ||
+	    P(file1,
+	      "size_t %s_train_memory(void) {\n"
+	      "  return %lu * sizeof (%s);\n"
+	      "}\n\n",
+	      prefix,
+	      UL(mem2->size),
+	      precision(inst2)) ||
+	    P(file1,
+	      "void %s_initialize(void *m) {\n"
+	      "  _initialize_((char *)m);\n"
+	      "}\n\n",
+	      prefix) ||
+	    P(file1,
+	      "void *%s_activate(void *m, const void *x) {\n"
+	      "  return _activatex_((char *)m, x);\n"
+	      "}\n\n",
+	      ann->prefix) ||
+	    P(file1,
+	      "void %s_train(void *m, const void *x, const void *y) {\n"
+	      "  _train_((char *)m, x, y);\n"
+	      "}\n\n",
+	      ann->prefix)) {
 		G__FREE(prefix);
 		G__DEBUG(0);
 		return -1;
@@ -733,30 +802,22 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	if (P(file2,
 	      "#ifndef _%s_H_\n"
 	      "#define _%s_H_\n\n"
+	      "#include <stddef.h>\n\n"
 	      "#ifdef __cplusplus\n"
 	      "extern \"C\" {\n"
-	      "#endif /* __cplusplus */\n\n"
-	      "#define _%s_VERSION %d\n"
-	      "#define _%s_ACTIVATE_MEMORY %lu\n"
-	      "#define _%s_TRAIN_MEMORY %lu\n\n",
+	      "#endif /* __cplusplus */\n\n",
 	      prefix,
-	      prefix,
-	      prefix,
-	      G__VERSION,
-	      prefix,
-	      n1,
-	      prefix,
-	      n2) ||
+	      prefix) ||
+	    P(file2, "int %s_version(void);\n", prefix) ||
+	    P(file2, "size_t %s_activate_memory(void);\n", prefix) ||
+	    P(file2, "size_t %s_train_memory(void);\n", prefix) ||
+	    P(file2, "void %s_initialize(void *m);\n", prefix) ||
 	    P(file2,
-	      "%s *%s_activate(char *m_, const %s *x_);\n",
-	      precision(&prog1->inst[0]),
-	      ann->prefix,
-	      precision(&prog1->inst[0])) ||
+	      "void *%s_activate(void *m, const void *x);\n",
+	      ann->prefix) ||
 	    P(file2,
-	      "void %s_train(char *m_, const %s *x_, const %s *y_);\n\n",
-	      ann->prefix,
-	      precision(&prog2->inst[0]),
-	      precision(&prog2->inst[0])) ||
+	      "void %s_train(void *m, const void *x, const void *y);\n\n",
+	      ann->prefix) ||
 	    P(file2,
 	      "#ifdef __cplusplus\n"
 	      "}\n"
@@ -771,26 +832,27 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	return 0;
 }
 
-int g__emitc(const struct g__ann *ann) {
-	FILE *file1 = stdout;
-	FILE *file2 = stdout;
+int g__emitc(const struct g__ann *ann, const char *tmp) {
+	FILE *file1, *file2;
 	char *s;
 
 	assert( ann );
 
-	s = g__malloc(g__strlen(ann->module) + 32);
+	s = g__malloc(g__strlen(ann->module) + g__strlen(tmp) + 32);
 	if (!s) {
 		G__DEBUG(0);
 		return -1;
 	}
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
-		   "%s.c",
+		   "%s/%s.c",
+		   tmp ? tmp : "",
 		   ann->module);
 	file1 = fopen(s, "w");
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
-		   "%s.h",
+		   "%s/%s.h",
+		   tmp ? tmp : "",
 		   ann->module);
 	file2 = fopen(s, "w");
 	G__FREE(s);
@@ -800,6 +862,7 @@ int g__emitc(const struct g__ann *ann) {
 	}
 	if (header(ann, file1, 1) ||
 	    header(ann, file2, 0) ||
+	    initialize(ann, file1) ||
 	    activatex(ann, file1) ||
 	    activate(ann, file1) ||
 	    backprop(ann, file1) ||

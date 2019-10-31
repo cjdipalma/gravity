@@ -46,6 +46,9 @@ int main(int argc, char *argv[]) {
 		printf("usage: gravity [--verion][--debug] input\n");
 		return -1;
 	}
+
+	/* g compile */
+
 	ir = g__ir_parse(pathname);
 	if (!ir) {
 		G__DEBUG(0);
@@ -53,7 +56,7 @@ int main(int argc, char *argv[]) {
 	}
 	ann = g__ann_open(ir);
 	g__ir_destroy();
-	if (!ann || g__emitc(ann)) {
+	if (!ann || g__emitc(ann, 0)) {
 		g__ann_close(ann);
 		fprintf(stderr, "gravity compiler error (run with --debug)\n");
 		G__DEBUG(0);

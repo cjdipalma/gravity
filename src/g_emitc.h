@@ -20,6 +20,6 @@
 
 #include "g_ann.h"
 
-int g__emitc(const struct g__ann *ann);
+int g__emitc(const struct g__ann *ann, const char *tmp);
 
 #endif /* _G_EMITC_H_ */
