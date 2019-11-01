@@ -146,6 +146,11 @@ int g__ir_top(void) {
 		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
+	if (!state.mark[MARK_HIDDEN]) {
+		yyerror("missing .hidden specification");
+		G__DEBUG(G__ERR_SYNTAX);
+		return -1;
+	}
 	n = 2 + state.mark[MARK_HIDDEN];
 	state.ir->layers = n;
 	state.ir->nodes = g__ir_malloc(n * sizeof (state.ir->nodes[0]));
