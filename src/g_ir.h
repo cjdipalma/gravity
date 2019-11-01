@@ -20,10 +20,6 @@
 
 #include "g_common.h"
 
-#define G__IR_MEMORY_ACTIVATE 0
-#define G__IR_MEMORY_TRAIN    1
-#define G__IR_MEMORY_END      2
-
 #define G__IR_PRECISION_NONE   0
 #define G__IR_PRECISION_FLOAT  1
 #define G__IR_PRECISION_DOUBLE 2
@@ -51,7 +47,7 @@ struct g__ir {
 		int whole;
 		int fraction;
 		int precision;
-	} memory[G__IR_MEMORY_END];
+	} memory;
 	struct {
 		int size;
 		int activation;
@@ -75,12 +71,7 @@ extern void yyrestart(FILE *file);
 extern void yyerror(const char *format, ...);
 
 int g__ir_top(void);
-int g__ir_precision(long whole1,
-		    long fraction1,
-		    long precision1,
-		    long whole2,
-		    long fraction2,
-		    long precision2);
+int g__ir_precision(long whole, long fraction, long precision);
 int g__ir_module(const char *s);
 int g__ir_prefix(const char *s);
 int g__ir_costfnc(long costfnc);

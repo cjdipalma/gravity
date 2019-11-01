@@ -121,7 +121,7 @@ static int inst_random(const struct g__ann_program_inst *inst, FILE *file) {
 	      "    %s i;\n"
 	      "    for(i=0; i<%lu; ++i) {\n"
 	      "      r = (%s)rand() / RAND_MAX;\n"
-	      "      z[i] = %f + r * (%f - %f);\n"
+	      "      z[i] = %f + r * %f;\n"
 	      "    }\n"
 	      "  }\n\n",
 	      precision(inst),
@@ -131,8 +131,7 @@ static int inst_random(const struct g__ann_program_inst *inst, FILE *file) {
 	      UL(inst->arg[3].i),
 	      precision(inst),
 	      inst->arg[1].r,
-	      inst->arg[2].r,
-	      inst->arg[1].r)) {
+	      inst->arg[2].r)) {
 		G__DEBUG(0);
 		return -1;
 	}
@@ -681,22 +680,6 @@ static int initialize(const struct g__ann *ann, FILE *file) {
 	return 0;
 }
 
-static int activatex(const struct g__ann *ann, FILE *file) {
-	const struct g__ann_program *prog;
-
-	prog = &ann->program[G__ANN_PROGRAM_ACTIVATEX];
-	if (P(file,
-	      "static %s *_activatex_(char *m_, const %s *x_) {\n",
-	      precision(&prog->inst[0]),
-	      precision(&prog->inst[0])) ||
-	    program(prog, file) ||
-	    P(file, "}\n\n")) {
-		G__DEBUG(0);
-		return -1;
-	}
-	return 0;
-}
-
 static int activate(const struct g__ann *ann, FILE *file) {
 	const struct g__ann_program *prog;
 
@@ -746,13 +729,10 @@ static int train(const struct g__ann *ann, FILE *file) {
 
 static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	const struct g__ann_program_inst *inst1, *inst2;
-	const struct g__ann_memory *mem1, *mem2;
 	const char *prefix;
 
 	inst1 = &ann->program[G__ANN_PROGRAM_ACTIVATE].inst[0];
 	inst2 = &ann->program[G__ANN_PROGRAM_TRAIN].inst[0];
-	mem1 = &ann->memory[G__ANN_MEMORY_ACTIVATE];
-	mem2 = &ann->memory[G__ANN_MEMORY_TRAIN];
 	prefix = capitalize(ann->prefix);
 
 	/* C file */
@@ -764,18 +744,18 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      prefix,
 	      G__VERSION) ||
 	    P(file1,
-	      "size_t %s_activate_memory(void) {\n"
+	      "size_t %s_memory_size(void) {\n"
 	      "  return %lu * sizeof (%s);\n"
 	      "}\n\n",
 	      prefix,
-	      UL(mem1->size),
+	      UL(ann->memory.size),
 	      precision(inst1)) ||
 	    P(file1,
-	      "size_t %s_train_memory(void) {\n"
+	      "size_t %s_memory_hard(void) {\n"
 	      "  return %lu * sizeof (%s);\n"
 	      "}\n\n",
 	      prefix,
-	      UL(mem2->size),
+	      UL(ann->memory.hard),
 	      precision(inst2)) ||
 	    P(file1,
 	      "void %s_initialize(void *m) {\n"
@@ -784,7 +764,7 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      prefix) ||
 	    P(file1,
 	      "void *%s_activate(void *m, const void *x) {\n"
-	      "  return _activatex_((char *)m, (const %s *)x);\n"
+	      "  return _activate_((char *)m, (const %s *)x);\n"
 	      "}\n\n",
 	      ann->prefix,
 	      precision(inst1)) ||
@@ -812,8 +792,8 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      prefix,
 	      prefix) ||
 	    P(file2, "int %s_version(void);\n", prefix) ||
-	    P(file2, "size_t %s_activate_memory(void);\n", prefix) ||
-	    P(file2, "size_t %s_train_memory(void);\n", prefix) ||
+	    P(file2, "size_t %s_memory_size(void);\n", prefix) ||
+	    P(file2, "size_t %s_memory_hard(void);\n", prefix) ||
 	    P(file2, "void %s_initialize(void *m);\n", prefix) ||
 	    P(file2,
 	      "void *%s_activate(void *m, const void *x);\n",
@@ -866,7 +846,6 @@ int g__emitc(const struct g__ann *ann, const char *tmp) {
 	if (header(ann, file1, 1) ||
 	    header(ann, file2, 0) ||
 	    initialize(ann, file1) ||
-	    activatex(ann, file1) ||
 	    activate(ann, file1) ||
 	    backprop(ann, file1) ||
 	    train(ann, file1) ||

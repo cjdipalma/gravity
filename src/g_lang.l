@@ -49,6 +49,7 @@
 "softmax"                        { return G__SOFTMAX;                   }
 "sigmoid"                        { return G__SIGMOID;                   }
 ","                              { return ',';                          }
+";"                              { return ';';                          }
 "["                              { return '[';                          }
 "]"                              { return ']';                          }
 "("                              { return '(';                          }

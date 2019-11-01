@@ -30,11 +30,10 @@
 #define G__ANN_MEMORY_END      G__IR_MEMORY_END
 
 #define G__ANN_PROGRAM_INITIALIZE 0
-#define G__ANN_PROGRAM_ACTIVATEX  1
-#define G__ANN_PROGRAM_ACTIVATE   2
-#define G__ANN_PROGRAM_BACKPROP   3
-#define G__ANN_PROGRAM_TRAIN      4
-#define G__ANN_PROGRAM_END        5
+#define G__ANN_PROGRAM_ACTIVATE   1
+#define G__ANN_PROGRAM_BACKPROP   2
+#define G__ANN_PROGRAM_TRAIN      3
+#define G__ANN_PROGRAM_END        4
 
 #define G__ANN_PROGRAM_INST_RET         1
 #define G__ANN_PROGRAM_INST_RETARG      2
@@ -66,13 +65,14 @@ struct g__ann {
 		int fraction;
 		int precision;
 		uint64_t size; /* bytes */
+		uint64_t hard; /* bytes */
 		uint64_t *w;   /* byte address */
 		uint64_t *b;   /* byte address */
 		uint64_t *a_;  /* byte address */
 		uint64_t *d_;  /* byte address */
 		uint64_t *w_;  /* byte address */
 		uint64_t *b_;  /* byte address */
-	} memory[G__ANN_MEMORY_END];
+	} memory;
 	struct g__ann_program {
 		int size;
 		struct g__ann_program_inst {

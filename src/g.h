@@ -43,9 +43,9 @@ g_t g_open(const char *precision,
 
 void g_close(g_t g);
 
-size_t g_activate_memory(g_t g);
+size_t g_memory_size(g_t g);
 
-size_t g_train_memory(g_t g);
+size_t g_memory_hard(g_t g);
 
 void *g_activate(g_t g, const void *x);
 

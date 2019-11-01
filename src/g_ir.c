@@ -122,15 +122,19 @@ int g__ir_top(void) {
 	if (!state.mark[MARK_PREFIX]) {
 		state.ir->prefix = "g";
 	}
+	if (!state.mark[MARK_PRECISION]) {
+		state.ir->memory.whole = 0;
+		state.ir->memory.fraction = 0;
+		state.ir->memory.precision = G__IR_PRECISION_FLOAT;
+	}
+	if (!state.mark[MARK_COSTFNC]) {
+		state.ir->costfnc = G__IR_COSTFNC_CROSS_ENTROPY;
+	}
 	if (!state.mark[MARK_BATCH]) {
-		yyerror("missing .batch specification");
-		G__DEBUG(G__ERR_SYNTAX);
-		return -1;
+		state.ir->batch = 1;
 	}
 	if (!state.mark[MARK_ETA]) {
-		yyerror("missing .eta specification");
-		G__DEBUG(G__ERR_SYNTAX);
-		return -1;
+		state.ir->eta = 0.1;
 	}
 	if (!state.mark[MARK_INPUT]) {
 		yyerror("missing .input specification");
@@ -213,41 +217,24 @@ int g__ir_prefix(const char *s) {
 	return 0;
 }
 
-int g__ir_precision(long whole1,
-		    long fraction1,
-		    long precision1,
-		    long whole2,
-		    long fraction2,
-		    long precision2) {
+int g__ir_precision(long whole, long fraction, long precision) {
 	if (state.mark[MARK_PRECISION]) {
 		yyerror("duplicate .precision specification");
 		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	if ((G__IR_PRECISION_FIXED == precision1) &&
-	    ((1 > whole1) || (0 > fraction1) ||
-	     (64 < (whole1 + fraction1)))) {
+	if ((G__IR_PRECISION_FIXED == precision) &&
+	    ((1 > whole) || (0 > fraction) ||
+	     (64 < (whole + fraction)))) {
 		yyerror("invalid .precision 'FIXED [%ld, %ld]' ",
-			whole1,
-			fraction1);
+			whole,
+			fraction);
 		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	if ((G__IR_PRECISION_FIXED == precision2) &&
-	    ((1 > whole2) || (0 > fraction2) ||
-	     (64 < (whole2 + fraction2)))) {
-		yyerror("invalid .precision 'FIXED [%ld, %ld]' ",
-			whole2,
-			fraction2);
-		G__DEBUG(G__ERR_SYNTAX);
-		return -1;
-	}
-	state.ir->memory[G__IR_MEMORY_ACTIVATE].whole = (int)whole1;
-	state.ir->memory[G__IR_MEMORY_ACTIVATE].fraction = (int)fraction1;
-	state.ir->memory[G__IR_MEMORY_ACTIVATE].precision = (int)precision1;
-	state.ir->memory[G__IR_MEMORY_TRAIN].whole = (int)whole2;
-	state.ir->memory[G__IR_MEMORY_TRAIN].fraction = (int)fraction2;
-	state.ir->memory[G__IR_MEMORY_TRAIN].precision = (int)precision2;
+	state.ir->memory.whole = (int)whole;
+	state.ir->memory.fraction = (int)fraction;
+	state.ir->memory.precision = (int)precision;
 	state.mark[MARK_PRECISION] += 1;
 	return 0;
 }

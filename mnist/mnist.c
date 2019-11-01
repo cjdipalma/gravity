@@ -218,7 +218,7 @@ int main() {
 	/* open ANN */
 
 	g_debug(1);
-	g = g_open(".precision float float",
+	g = g_open(".precision float",
 		   ".costfnc cross_entropy",
 		   ".batch 8",
 		   ".eta 0.1",
@@ -231,9 +231,9 @@ int main() {
 		printf("g_open error\n");
 		return -1;
 	}
-	printf("g version      : %d\n", g_version());
-	printf("activate memory: %lu\n", UL(g_activate_memory(g)));
-	printf("train memory   : %lu\n", UL(g_train_memory(g)));
+	printf("version: %d\n", g_version());
+	printf("size   : %lu\n", UL(g_memory_size(g)));
+	printf("hard   : %lu\n", UL(g_memory_hard(g)));
 
 	/* load train/test data */
 

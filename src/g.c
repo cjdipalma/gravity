@@ -22,20 +22,20 @@
 #define SIG 1298343576
 #define MAX_LAYERS  10
 
-typedef int    (*version_fnc_t)        (void);
-typedef size_t (*activate_memory_fnc_t)(void);
-typedef size_t (*train_memory_fnc_t)   (void);
-typedef void   (*initialize_fnc_t)     (void *);
-typedef void  *(*activate_fnc_t)       (void *, const void *);
-typedef void   (*train_fnc_t)          (void *, const void *, const void *);
+typedef int    (*version_fnc_t)     (void);
+typedef size_t (*memory_size_fnc_t) (void);
+typedef size_t (*memory_hard_fnc_t) (void);
+typedef void   (*initialize_fnc_t)  (void *);
+typedef void  *(*activate_fnc_t)    (void *, const void *);
+typedef void   (*train_fnc_t)       (void *, const void *, const void *);
 
 struct g {
-	void *mem[2];
+	void *memory;
 	unsigned sig;
 	g__vcm_t vcm;
 	version_fnc_t version;
-	activate_memory_fnc_t activate_memory;
-	train_memory_fnc_t train_memory;
+	memory_size_fnc_t memory_size;
+	memory_hard_fnc_t memory_hard;
 	initialize_fnc_t initialize;
 	activate_fnc_t activate;
 	train_fnc_t train;
@@ -60,14 +60,14 @@ static int populate(const char *pathname,
 		return -1;
 	}
 	if (0 > fprintf(file,
-			"%s\n"
-			"%s\n"
-			"%s\n"
-			"%s\n"
-			"%s\n"
-			"%s\n"
-			"%s\n"
-			"%s\n",
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n"
+			"%s ;\n",
 			module,
 			prefix,
 			precision,
@@ -81,7 +81,7 @@ static int populate(const char *pathname,
 		return -1;
 	}
 	for (i=0; layers[i]; ++i) {
-		if (0 > fprintf(file, "%s\n", layers[i])) {
+		if (0 > fprintf(file, "%s ;\n", layers[i])) {
 			fclose(file);
 			G__DEBUG(G__ERR_FILE);
 			return -1;
@@ -217,10 +217,10 @@ g_t g_open(const char *precision,
 
 	g->version = (version_fnc_t)(long)
 		g__vcm_lookup(g->vcm, "_version");
-	g->activate_memory = (activate_memory_fnc_t)(long)
-		g__vcm_lookup(g->vcm, "_activate_memory");
-	g->train_memory = (train_memory_fnc_t)(long)
-		g__vcm_lookup(g->vcm, "_train_memory");
+	g->memory_size = (memory_size_fnc_t)(long)
+		g__vcm_lookup(g->vcm, "_memory_size");
+	g->memory_hard = (memory_hard_fnc_t)(long)
+		g__vcm_lookup(g->vcm, "_memory_hard");
 	g->initialize = (initialize_fnc_t)(long)
 		g__vcm_lookup(g->vcm, "_initialize");
 	g->activate = (activate_fnc_t)(long)
@@ -228,8 +228,8 @@ g_t g_open(const char *precision,
 	g->train = (train_fnc_t)(long)
 		g__vcm_lookup(g->vcm, "_train");
 	assert( g->version &&
-		g->activate_memory &&
-		g->train_memory &&
+		g->memory_size &&
+		g->memory_hard &&
 		g->initialize &&
 		g->activate &&
 		g->train );
@@ -237,44 +237,40 @@ g_t g_open(const char *precision,
 
 	/* allocate ANN memory */
 
-	g->mem[0] = g__malloc(g->activate_memory());
-	g->mem[1] = g__malloc(g->train_memory());
-	if (!g->mem[0] || !g->mem[1]) {
+	g->memory = g__malloc(g->memory_size());
+	if (!g->memory) {
 		g_close(g);
 		G__DEBUG(0);
 		return 0;
 	}
-	memset(g->mem[0], 0, g->activate_memory());
-	memset(g->mem[1], 0, g->train_memory());
-	g->initialize(g->mem[1]);
-	g->mem[0] = g->mem[1];
+	memset(g->memory, 0, g->memory_size());
+	g->initialize(g->memory);
 	return g;
 }
 
 void g_close(g_t g) {
 	if (g && (SIG == g->sig)) {
 		g__vcm_close(g->vcm);
-		/*G__FREE(g->mem[0]);*/
-		G__FREE(g->mem[1]);
+		G__FREE(g->memory);
 		memset(g, 0, sizeof (struct g));
 		G__FREE(g);
 	}
 }
 
-size_t g_activate_memory(g_t g) {
+size_t g_memory_size(g_t g) {
 	if (!g || (SIG != g->sig)) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
 	}
-	return g->activate_memory();
+	return g->memory_size();
 }
 
-size_t g_train_memory(g_t g) {
+size_t g_memory_hard(g_t g) {
 	if (!g || (SIG != g->sig)) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
 	}
-	return g->train_memory();
+	return g->memory_hard();
 }
 
 void *g_activate(g_t g, const void *x) {
@@ -284,13 +280,13 @@ void *g_activate(g_t g, const void *x) {
 	}
 	{
 		int i;
-		float *xx = (float *)g->mem[1];
+		float *xx = (float *)g->memory;
 		for (i=0; i<40; ++i) {
 			printf("%f\n", (double)xx[i]);
 		}
 		exit(0);
 	}
-	return g->activate(g->mem[0], x);
+	return g->activate(g->memory, x);
 }
 
 int g_train(g_t g, const void *x, const void *y) {
@@ -298,6 +294,6 @@ int g_train(g_t g, const void *x, const void *y) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return -1;
 	}
-	g->train(g->mem[1], x, y);
+	g->train(g->memory, x, y);
 	return 0;
 }

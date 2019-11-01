@@ -67,7 +67,7 @@
 
 top
   : _phrase_ { if (g__ir_top()) YYABORT; }
-  | G__ERROR  { yyerror(0); YYABORT;     }
+  | G__ERROR { yyerror(0); YYABORT;      }
   ;
 
 _phrase_
@@ -76,15 +76,16 @@ _phrase_
   ;
 
 _phrase1_
-  : _module_
-  | _prefix_
-  | _precision_
-  | _costfnc_
-  | _batch_
-  | _eta_
-  | _input_
-  | _output_
-  | _hidden_
+  : _module_ ';'
+  | _prefix_ ';'
+  | _precision_ ';'
+  | _costfnc_ ';'
+  | _batch_ ';'
+  | _eta_ ';'
+  | _input_ ';'
+  | _output_ ';'
+  | _hidden_ ';'
+  | ';'
   ;
 
 /*---------------------------------------------------------------------------------------------------------------------------------------*/
@@ -98,7 +99,7 @@ _prefix_
   ;
 
 _precision_
-  : G__PRECISION _precision1_ _precision1_ { if (g__ir_precision($2.a, $2.b, $2.c, $3.a, $3.b, $3.c)) YYABORT; }
+  : G__PRECISION _precision1_ { if (g__ir_precision($2.a, $2.b, $2.c)) YYABORT; }
   ;
 
 _precision1_
