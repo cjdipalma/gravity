@@ -24,17 +24,17 @@
 
 #define UL(x) ((unsigned long)(x))
 
-#define BATCH  8  /* training batch size */
+#define BATCH  8  /* should match .batch specification */
 #define EPOCHS 1  /* number of training episodes */
 
-typedef float real_t; /* should match G_ANN_PRECISION_FLOAT */
+typedef float real_t; /* should match .precision specification */
 
 static g_t g;
 
 static uint64_t usec(void) {
-        struct timeval t;
+	struct timeval t;
 
-        gettimeofday(&t, 0);
+	gettimeofday(&t, 0);
 	return (uint64_t)t.tv_usec + (uint64_t)t.tv_sec * 1000000;
 }
 
@@ -50,17 +50,17 @@ static int32_t swap(int32_t x) {
 }
 
 static int argmax(const real_t *a, int n) {
-        real_t max;
-        int i, j;
+	real_t max;
+	int i, j;
 
-        max = a[0];
-        for (i=j=0; i<n; ++i) {
+	max = a[0];
+	for (i=j=0; i<n; ++i) {
 		if (max < a[i]) {
 			max = a[i];
 			j = i;
 		}
-        }
-        return j;
+	}
+	return j;
 }
 
 static int train_and_test(const uint8_t *train_labels,
