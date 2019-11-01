@@ -74,9 +74,9 @@ g__vcm_t g__vcm_open(const char *pathname) {
 
 	assert( g__strlen(pathname) );
 
-        tmp = getenv("TMPDIR");
-        tmp = tmp ? tmp : getenv("TMP");
-        tmp = tmp ? tmp : getenv("TEMP");
+	tmp = getenv("TMPDIR");
+	tmp = tmp ? tmp : getenv("TMP");
+	tmp = tmp ? tmp : getenv("TEMP");
 	tmp = tmp ? tmp : ".";
 	g__sprintf((char *)output, sizeof (output), "%s/_%x_.so", tmp, rand());
 	if (compile(pathname, output)) {

@@ -177,9 +177,9 @@ static int emit_program_activate(struct g__ann *ann,
 	prog = &ann->program[prog_];
 
 	/*
-         * return:
-         *   y := a_[L]
-         */
+	 * return:
+	 *   y := a_[L]
+	 */
 
 	l = ann->layers;
 	/*--*/
@@ -190,10 +190,10 @@ static int emit_program_activate(struct g__ann *ann,
 	inst->fraction = mem->fraction;
 	inst->precision = mem->precision;
 
-        /*
-         * a_[*]:
-         *    a_[0] := x
-         */
+	/*
+	 * a_[*]:
+	 *    a_[0] := x
+	 */
 
 	n = (uint64_t)ir->nodes[0].size;
 	/*--*/
@@ -206,19 +206,19 @@ static int emit_program_activate(struct g__ann *ann,
 	inst->precision = mem->precision;
 
 	/*
-         * a_[*]:
-         *    a_[l] := activation( w[l] * a_[l - 1] + b[l] )
-         *
-         * activation:
-         *    RELU
-         *    LINEAR
-         *    SOFTMAX
-         *    SIGMOID
-         */
+	 * a_[*]:
+	 *    a_[l] := activation( w[l] * a_[l - 1] + b[l] )
+	 *
+	 * activation:
+	 *    RELU
+	 *    LINEAR
+	 *    SOFTMAX
+	 *    SIGMOID
+	 */
 
-        for (l=1; l<ann->layers; ++l) {
-                n = (uint64_t)ir->nodes[l].size;
-                m = (uint64_t)ir->nodes[l - 1].size;
+	for (l=1; l<ann->layers; ++l) {
+		n = (uint64_t)ir->nodes[l].size;
+		m = (uint64_t)ir->nodes[l - 1].size;
 		/*--*/
 		inst = newinst(prog);
 		inst->opc = G__ANN_PROGRAM_INST_MAC1;
@@ -247,7 +247,7 @@ static int emit_program_activate(struct g__ann *ann,
 		inst->whole = mem->whole;
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
-        }
+	}
 	return 0;
 }
 
@@ -303,10 +303,10 @@ static int emit_program_backprop(struct g__ann *ann,
 	inst->precision = mem->precision;
 
 	/*
-         * d_[*]:
-         *    d_[l] := (w[l+1]' * d_[l+1]) ⊙ σ′(a_[l])
-         *    d_[1] := (w[l+1]' * d_[l+1])
-         */
+	 * d_[*]:
+	 *    d_[l] := (w[l+1]' * d_[l+1]) ⊙ σ′(a_[l])
+	 *    d_[1] := (w[l+1]' * d_[l+1])
+	 */
 
 	while (l) {
 		n = (uint64_t)ir->nodes[l].size;
@@ -347,12 +347,12 @@ static int emit_program_backprop(struct g__ann *ann,
 	}
 
 	/*
-         * b_[*]:
-         *    b_[l] := b_[l] + d_[l]
+	 * b_[*]:
+	 *    b_[l] := b_[l] + d_[l]
 	 *
-         * w_[*]:
-         *    w_[l] := w_[l] + d_[l] * a_[l - 1]
-         */
+	 * w_[*]:
+	 *    w_[l] := w_[l] + d_[l] * a_[l - 1]
+	 */
 
 	for (l=1; l<ann->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
@@ -405,14 +405,14 @@ static int emit_program_train(struct g__ann *ann,
 	inst->precision = mem->precision;
 
 	/*
-         * adjustments:
-         *   w_[*] := 0
-         *   b_[*] := 0
-         */
+	 * adjustments:
+	 *   w_[*] := 0
+	 *   b_[*] := 0
+	 */
 
 	for (l=1; l<ann->layers; ++l) {
-                n = (uint64_t)ir->nodes[l].size;
-                m = (uint64_t)ir->nodes[l - 1].size;
+		n = (uint64_t)ir->nodes[l].size;
+		m = (uint64_t)ir->nodes[l - 1].size;
 		/*--*/
 		inst = newinst(prog);
 		inst->opc = G__ANN_PROGRAM_INST_CLEAR;
@@ -429,7 +429,7 @@ static int emit_program_train(struct g__ann *ann,
 		inst->whole = mem->whole;
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
-        }
+	}
 
 	/*
 	 * for each (x -> y) pair:
@@ -457,7 +457,7 @@ static int emit_program_train(struct g__ann *ann,
 	 *    b[l] := b[l] - b_[l]
 	 */
 
-        for (l=1; l<ann->layers; ++l) {
+	for (l=1; l<ann->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		m = (uint64_t)ir->nodes[l - 1].size;
 		/*--*/
@@ -480,7 +480,7 @@ static int emit_program_train(struct g__ann *ann,
 		inst->whole = mem->whole;
 		inst->fraction = mem->fraction;
 		inst->precision = mem->precision;
-        }
+	}
 	return 0;
 }
 
