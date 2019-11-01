@@ -618,6 +618,7 @@ static int program(const struct g__ann_program *program, FILE *file) {
 			G__DEBUG(G__ERR_SOFTWARE);
 			assert( 0 );
 			exit(-1);
+			return -1;
 		}
 	}
 	inst = &program->inst[0];
@@ -637,6 +638,7 @@ static int program(const struct g__ann_program *program, FILE *file) {
 		G__DEBUG(G__ERR_SOFTWARE);
 		assert( 0 );
 		exit(-1);
+		return -1;
 	}
 	return 0;
 }

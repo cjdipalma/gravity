@@ -152,7 +152,7 @@ int g__ir_top(void) {
 	if (!state.ir->nodes) {
 		yyerror("out of memory");
 		G__DEBUG(0);
-		return 0;
+		return -1;
 	}
 	i = 0;
 	node = state.root;

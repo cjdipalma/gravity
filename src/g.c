@@ -96,11 +96,11 @@ int g_version(void) {
 }
 
 void g_debug(int enabled) {
-	g__debug_enabled = 0;
 	yyerroron = 0;
+	g__debug_enabled = 0;
 	if (enabled) {
-		g__debug_enabled = 1;
 		yyerroron = 1;
+		g__debug_enabled = 1;
 	}
 }
 

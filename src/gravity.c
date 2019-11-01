@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
 
 	pathname = 0;
 	yyerroron = 1;
+	g__debug_enabled = 0;
 	for (i=1; i<argc; ++i) {
 		if (!strcmp("--version", argv[i])) {
 			printf("The Gravity Compiler %d.%d\n",
