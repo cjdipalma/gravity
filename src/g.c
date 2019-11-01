@@ -278,14 +278,6 @@ void *g_activate(g_t g, const void *x) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
 	}
-	{
-		int i;
-		float *xx = (float *)g->memory;
-		for (i=0; i<40; ++i) {
-			printf("%f\n", (double)xx[i]);
-		}
-		exit(0);
-	}
 	return g->activate(g->memory, x);
 }
 
