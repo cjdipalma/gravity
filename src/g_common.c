@@ -76,6 +76,6 @@ const char *g__error(int e) {
 
 void g__unlink(const char *pathname) {
 	if (g__strlen(pathname)) {
-		/*unlink(pathname);*/
+		unlink(pathname);
 	}
 }

@@ -25,7 +25,7 @@
 #define UL(x) ((unsigned long)(x))
 
 #define BATCH  8  /* should match .batch specification */
-#define EPOCHS 1  /* number of training episodes */
+#define EPOCHS 4  /* number of training episodes */
 
 typedef float real_t; /* should match .precision specification */
 
