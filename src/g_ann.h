@@ -42,10 +42,10 @@
 #define G__ANN_PROGRAM_INST_RANDOM     11
 #define G__ANN_PROGRAM_INST_CLEAR      12
 #define G__ANN_PROGRAM_INST_COPYX      13
-#define G__ANN_PROGRAM_INST_MUL1       14
-#define G__ANN_PROGRAM_INST_MUL2       15
-#define G__ANN_PROGRAM_INST_MUL3       16
-#define G__ANN_PROGRAM_INST_MUL4       17
+#define G__ANN_PROGRAM_INST_MAC1       14
+#define G__ANN_PROGRAM_INST_MAC2       15
+#define G__ANN_PROGRAM_INST_MAC3       16
+#define G__ANN_PROGRAM_INST_MAC4       17
 #define G__ANN_PROGRAM_INST_ADD        18
 #define G__ANN_PROGRAM_INST_SUBY       19
 #define G__ANN_PROGRAM_INST_RELU      101

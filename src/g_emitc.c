@@ -169,7 +169,7 @@ static int inst_copyx(const struct g__ann_program_inst *inst, FILE *file) {
 
 static int inst_mul1(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
-	      "  { /* MUL1 */\n"
+	      "  { /* MAC1 */\n"
 	      "    %s *z = (%s *)( m_ + %lu );\n"
 	      "    const %s *A = (const %s *)( m_ + %lu );\n"
 	      "    const %s *B = (const %s *)( m_ + %lu );\n"
@@ -203,7 +203,7 @@ static int inst_mul1(const struct g__ann_program_inst *inst, FILE *file) {
 
 static int inst_mul2(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
-	      "  { /* MUL2 */\n"
+	      "  { /* MAC2 */\n"
 	      "    %s *z = (%s *)( m_ + %lu );\n"
 	      "    const %s *A = (const %s *)( m_ + %lu );\n"
 	      "    const %s *B = (const %s *)( m_ + %lu );\n"
@@ -237,7 +237,7 @@ static int inst_mul2(const struct g__ann_program_inst *inst, FILE *file) {
 
 static int inst_mul3(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
-	      "  { /* MUL3 */\n"
+	      "  { /* MAC3 */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
 	      "    const %s *B = (const %s *)( m_ + %lu );\n"
 	      "    const %s *C = (const %s *)( m_ + %lu );\n"
@@ -270,7 +270,7 @@ static int inst_mul3(const struct g__ann_program_inst *inst, FILE *file) {
 
 static int inst_mul4(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
-	      "  { /* MUL4 */\n"
+	      "  { /* MAC4 */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
 	      "    const %s *B = (const %s *)( m_ + %lu );\n"
 	      "    %s i;\n",
@@ -383,7 +383,7 @@ static int inst_softmax(const struct g__ann_program_inst *inst, FILE *file) {
 	if (P(file,
 	      "  { /* SOFTMAX */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
-	      "    %s max=0.0, sum=0.0;\n"
+	      "    %s max=za[0], sum=0.0;\n"
 	      "    %s i;\n",
 	      precision(inst),
 	      precision(inst),
@@ -391,7 +391,7 @@ static int inst_softmax(const struct g__ann_program_inst *inst, FILE *file) {
 	      precision(inst),
 	      type(inst->arg[1].i)) ||
 	    P(file,
-	      "    for (i=0; i<%lu; ++i) {\n"
+	      "    for (i=1; i<%lu; ++i) {\n"
 	      "      if (max < za[i]) {\n"
 	      "        max = za[i];\n"
 	      "      }\n"
@@ -531,25 +531,25 @@ static int program(const struct g__ann_program *program, FILE *file) {
 				return -1;
 			}
 		}
-		else if (G__ANN_PROGRAM_INST_MUL1 == inst->opc) {
+		else if (G__ANN_PROGRAM_INST_MAC1 == inst->opc) {
 			if (inst_mul1(inst, file)) {
 				G__DEBUG(0);
 				return -1;
 			}
 		}
-		else if (G__ANN_PROGRAM_INST_MUL2 == inst->opc) {
+		else if (G__ANN_PROGRAM_INST_MAC2 == inst->opc) {
 			if (inst_mul2(inst, file)) {
 				G__DEBUG(0);
 				return -1;
 			}
 		}
-		else if (G__ANN_PROGRAM_INST_MUL3 == inst->opc) {
+		else if (G__ANN_PROGRAM_INST_MAC3 == inst->opc) {
 			if (inst_mul3(inst, file)) {
 				G__DEBUG(0);
 				return -1;
 			}
 		}
-		else if (G__ANN_PROGRAM_INST_MUL4 == inst->opc) {
+		else if (G__ANN_PROGRAM_INST_MAC4 == inst->opc) {
 			if (inst_mul4(inst, file)) {
 				G__DEBUG(0);
 				return -1;
@@ -784,14 +784,17 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      prefix) ||
 	    P(file1,
 	      "void *%s_activate(void *m, const void *x) {\n"
-	      "  return _activatex_((char *)m, x);\n"
+	      "  return _activatex_((char *)m, (const %s *)x);\n"
 	      "}\n\n",
-	      ann->prefix) ||
+	      ann->prefix,
+	      precision(inst1)) ||
 	    P(file1,
 	      "void %s_train(void *m, const void *x, const void *y) {\n"
-	      "  _train_((char *)m, x, y);\n"
+	      "  _train_((char *)m, (const %s *)x, (const %s *)y);\n"
 	      "}\n\n",
-	      ann->prefix)) {
+	      ann->prefix,
+	      precision(inst2),
+	      precision(inst2))) {
 		G__FREE(prefix);
 		G__DEBUG(0);
 		return -1;

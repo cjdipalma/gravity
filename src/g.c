@@ -30,10 +30,9 @@ typedef void  *(*activate_fnc_t)       (void *, const void *);
 typedef void   (*train_fnc_t)          (void *, const void *, const void *);
 
 struct g {
+	void *mem[2];
 	unsigned sig;
 	g__vcm_t vcm;
-	void *activate_m;
-	void *train_m;
 	version_fnc_t version;
 	activate_memory_fnc_t activate_memory;
 	train_memory_fnc_t train_memory;
@@ -97,6 +96,8 @@ int g_version(void) {
 }
 
 void g_debug(int enabled) {
+	g__debug_enabled = 0;
+	yyerroron = 0;
 	if (enabled) {
 		g__debug_enabled = 1;
 		yyerroron = 1;
@@ -236,25 +237,25 @@ g_t g_open(const char *precision,
 
 	/* allocate ANN memory */
 
-	g->activate_m = g__malloc(g->activate_memory());
-	g->train_m = g__malloc(g->train_memory());
-	if (!g->activate_m || !g->train_m) {
+	g->mem[0] = g__malloc(g->activate_memory());
+	g->mem[1] = g__malloc(g->train_memory());
+	if (!g->mem[0] || !g->mem[1]) {
 		g_close(g);
 		G__DEBUG(0);
 		return 0;
 	}
-	memset(g->activate_m, 0, g->activate_memory());
-	memset(g->train_m, 0, g->train_memory());
-	g->initialize(g->train_m);
-	g->activate_m = g->train_m;
+	memset(g->mem[0], 0, g->activate_memory());
+	memset(g->mem[1], 0, g->train_memory());
+	g->initialize(g->mem[1]);
+	g->mem[0] = g->mem[1];
 	return g;
 }
 
 void g_close(g_t g) {
 	if (g && (SIG == g->sig)) {
 		g__vcm_close(g->vcm);
-		/*G__FREE(g->activate_m);*/
-		G__FREE(g->train_m);
+		/*G__FREE(g->mem[0]);*/
+		G__FREE(g->mem[1]);
 		memset(g, 0, sizeof (struct g));
 		G__FREE(g);
 	}
@@ -281,7 +282,15 @@ void *g_activate(g_t g, const void *x) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
 	}
-	return g->activate(g->activate_m, x);
+	{
+		int i;
+		float *xx = (float *)g->mem[1];
+		for (i=0; i<40; ++i) {
+			printf("%f\n", (double)xx[i]);
+		}
+		exit(0);
+	}
+	return g->activate(g->mem[0], x);
 }
 
 int g_train(g_t g, const void *x, const void *y) {
@@ -289,6 +298,6 @@ int g_train(g_t g, const void *x, const void *y) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return -1;
 	}
-	g->train(g->train_m, x, y);
+	g->train(g->mem[1], x, y);
 	return 0;
 }
