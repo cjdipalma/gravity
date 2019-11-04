@@ -837,19 +837,21 @@ int g__emitc(const struct g__ann *ann, const char *tmp) {
 	}
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
-		   "%s/%s.c",
-		   tmp ? tmp : "",
+		   "%s%s%s.c",
+		   g__strlen(tmp) ? "/" : "",
+		   g__strlen(tmp) ? tmp : "",
 		   ann->module);
 	file1 = fopen(s, "w");
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
-		   "%s/%s.h",
-		   tmp ? tmp : "",
+		   "%s%s%s.h",
+		   g__strlen(tmp) ? "/" : "",
+		   g__strlen(tmp) ? tmp : "",
 		   ann->module);
 	file2 = fopen(s, "w");
 	G__FREE(s);
 	if (!file1 || !file2) {
-		G__DEBUG(0);
+		G__DEBUG(G__ERR_FILE);
 		return -1;
 	}
 	if (header(ann, file1, 1) ||
