@@ -838,15 +838,15 @@ int g__emitc(const struct g__ann *ann, const char *tmp) {
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
 		   "%s%s%s.c",
-		   g__strlen(tmp) ? "/" : "",
 		   g__strlen(tmp) ? tmp : "",
+		   g__strlen(tmp) ? "/" : "",
 		   ann->module);
 	file1 = fopen(s, "w");
 	g__sprintf(s,
 		   g__strlen(ann->module) + 32,
 		   "%s%s%s.h",
-		   g__strlen(tmp) ? "/" : "",
 		   g__strlen(tmp) ? tmp : "",
+		   g__strlen(tmp) ? "/" : "",
 		   ann->module);
 	file2 = fopen(s, "w");
 	G__FREE(s);

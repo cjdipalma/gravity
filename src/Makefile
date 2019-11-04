@@ -23,8 +23,8 @@ OBJS  = g_common.o g_vcm.o g_ir.o g_ann.o g_emitc.o g.o y.tab.o lex.yy.o
 
 all: lang $(OBJS) $(DEST).o
 	$(CC) -o $(DEST) $(DEST).o $(OBJS) $(LIBS)
-	$(CC) -shared -o $(DEST).so $(OBJS) $(LIBS)
-	$(AR) rcs $(DEST).a $(OBJS)
+	$(CC) -shared -o lib$(DEST).so $(OBJS) $(LIBS)
+	$(AR) rcs lib$(DEST).a $(OBJS)
 
 %.o: %.c
 	$(CC) $(FLAGS) -c $<
@@ -37,7 +37,6 @@ lang: g_lang.y g_lang.l
 	$(CC) -fPIC -Wall -O3 -c lex.yy.c
 
 clean:
-	rm -f $(DEST) $(DEST).a $(DEST).so $(OBJS)
-	rm -f y.tab.* lex.yy.* *.o *.d *~ *#
+	rm -f $(DEST) y.tab.* lex.yy.* *.so *.a *.o *.d *~ *#
 
 -include $(OBJS:.o=.d)

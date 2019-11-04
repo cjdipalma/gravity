@@ -17,7 +17,7 @@
 
 CC    = gcc
 FLAGS = -ansi -pedantic -Wshadow -Wall -Wextra -Werror -Wfatal-errors -fPIC -O3
-LIBS  = ../src/gravity.a -ldl -lm
+LIBS  = ../src/libgravity.a -ldl -lm
 DEST  = mnist
 OBJS  = mnist.o
 
