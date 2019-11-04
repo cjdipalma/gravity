@@ -55,7 +55,7 @@ static const char *precision(const struct g__ann_program_inst *inst) {
 	case G__ANN_PRECISION_FLOAT : return "float";
 	case G__ANN_PRECISION_DOUBLE: return "double";
 	case G__ANN_PRECISION_FIXED : break; /* FIX : not implemented */
-	default /*--------------*/ : break;
+	default /*---------------*/ : break;
 	}
 	G__DEBUG(G__ERR_SOFTWARE);
 	assert( 0 );
