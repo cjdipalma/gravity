@@ -64,10 +64,16 @@ static const char *precision(const struct g__ann_program_inst *inst) {
 }
 
 static const char *type(uint64_t x) {
-	if (0xffffffff >= x) {
-		return "unsigned";
+	if (0xff >= x) {
+		return "uint32_t";
 	}
-	return "unsigned long";
+	else if (0xffff >= x) {
+		return "uint32_t";
+	}
+	else if (0xffffffff >= x) {
+		return "uint32_t";
+	}
+	return "uint64_t";
 }
 
 static int inst_ret(const struct g__ann_program_inst *inst, FILE *file) {
@@ -658,6 +664,7 @@ static int header(const struct g__ann *ann, FILE *file, int includes) {
 	if (includes) {
 		if (P(file,
 		      "#include <stdlib.h>\n"
+		      "#include <stdint.h>\n"
 		      "#include <string.h>\n"
 		      "#include <math.h>\n"
 		      "#include \"%s.h\"\n\n",
