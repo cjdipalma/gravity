@@ -22,9 +22,11 @@ All benchmarks running on:
   * 32 GB 1867 MHz DDR3
   * Train/Test data preloaded in RAM and excluded from time measurements
 
+```
    Implementation  | Accuracy |  Train Time   |   Test Time
                    |          | (usec/sample) | (usec/sample)
 -------------------|----------|---------------|---------------
      Gravity/C     |  0.9670  |     124       |      18
 -------------------|--------------------------|---------------
  Python/Tensorflow |  0.9748  |     183       |      39
+```
