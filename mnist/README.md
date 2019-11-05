@@ -17,10 +17,11 @@ provided using tensorflow and identical model/hyper-parameters.
 ## Performance
 
 All benchmarks running on:
-  * CentOS Linux release 8.0.1905 (Core)
+  * Train/Test data preloaded in RAM and excluded from time measurements
   * 4 GHz Quad-Core Intel Core i7
   * 32 GB 1867 MHz DDR3
-  * Train/Test data preloaded in RAM and excluded from time measurements
+  * CentOS Linux release 8.0.1905 (Core)
+  * GCC 8.2.1
   * Python 3.6.8
   * Tensorflow 2.0.0
 
