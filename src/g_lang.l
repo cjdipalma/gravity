@@ -31,13 +31,14 @@
 %%
 ".module"                        { return G__MODULE;                    }
 ".prefix"                        { return G__PREFIX;                    }
+".optimizer"                     { return G__OPTIMIZER;                 }
 ".precision"                     { return G__PRECISION;                 }
 ".costfnc"                       { return G__COSTFNC;                   }
 ".batch"                         { return G__BATCH;                     }
-".eta"                           { return G__ETA;                       }
 ".input"                         { return G__INPUT;                     }
 ".output"                        { return G__OUTPUT;                    }
 ".hidden"                        { return G__HIDDEN;                    }
+"sgd"                            { return G__SGD;                       }
 "float"                          { return G__FLOAT;                     }
 "double"                         { return G__DOUBLE;                    }
 "fixed"                          { return G__FIXED;                     }

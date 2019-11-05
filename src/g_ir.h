@@ -20,6 +20,9 @@
 
 #include "g_common.h"
 
+#define G__IR_OPTIMIZER_NONE 0
+#define G__IR_OPTIMIZER_SGD  1
+
 #define G__IR_PRECISION_NONE   0
 #define G__IR_PRECISION_FLOAT  1
 #define G__IR_PRECISION_DOUBLE 2
@@ -39,7 +42,6 @@
 struct g__ir {
 	int batch;
 	int layers;
-	double eta;
 	int costfnc;
 	const char *module;
 	const char *prefix;
@@ -47,7 +49,11 @@ struct g__ir {
 		int whole;
 		int fraction;
 		int precision;
-	} memory;
+	} precision;
+	struct {
+		int optimizer;
+		double learning_rate;
+	} optimizer;
 	struct {
 		int size;
 		int activation;
@@ -74,9 +80,9 @@ int g__ir_top(void);
 int g__ir_precision(long whole, long fraction, long precision);
 int g__ir_module(const char *s);
 int g__ir_prefix(const char *s);
+int g__ir_optimizer(long optimizer, double eta);
 int g__ir_costfnc(long costfnc);
 int g__ir_batch(long batch);
-int g__ir_eta(double eta);
 int g__ir_input(long size);
 int g__ir_output(long size, long activation);
 int g__ir_hidden(long size, long activation);

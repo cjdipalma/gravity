@@ -33,13 +33,14 @@
 
 %token G__MODULE
 %token G__PREFIX
+%token G__OPTIMIZER
 %token G__PRECISION
 %token G__COSTFNC
 %token G__BATCH
-%token G__ETA
 %token G__INPUT
 %token G__OUTPUT
 %token G__HIDDEN
+%token G__SGD
 %token G__FLOAT
 %token G__DOUBLE
 %token G__FIXED
@@ -78,10 +79,10 @@ _phrase_
 _phrase1_
   : _module_ ';'
   | _prefix_ ';'
+  | _optimizer_ ';'
   | _precision_ ';'
   | _costfnc_ ';'
   | _batch_ ';'
-  | _eta_ ';'
   | _input_ ';'
   | _output_ ';'
   | _hidden_ ';'
@@ -96,6 +97,10 @@ _module_
 
 _prefix_
   : G__PREFIX _string_ { if (g__ir_prefix($2)) YYABORT; }
+  ;
+
+_optimizer_
+  : G__OPTIMIZER G__SGD _real_ { if (g__ir_optimizer(G__IR_OPTIMIZER_SGD, $3)) YYABORT; }
   ;
 
 _precision_
@@ -120,10 +125,6 @@ _costfnc1_
 
 _batch_
   : G__BATCH _expr_ { if (g__ir_batch($2)) YYABORT; }
-  ;
-
-_eta_
-  : G__ETA _real_ { if (g__ir_eta($2)) YYABORT; }
   ;
 
 _input_

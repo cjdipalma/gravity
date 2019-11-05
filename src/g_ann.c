@@ -29,8 +29,8 @@ struct g__ann_program_inst *newinst(struct g__ann_program *program) {
 	return &program->inst[program->size++];
 }
 
-static size_t unit(const struct g__ann_memory *memory) {
-	switch (memory->precision) {
+static size_t unit(const struct g__ann_precision *precision) {
+	switch (precision->precision) {
 	case G__IR_PRECISION_FLOAT : return 4;
 	case G__IR_PRECISION_DOUBLE: return 8;
 	case G__IR_PRECISION_FIXED : break;/* FIX : not implemented */
@@ -42,39 +42,39 @@ static size_t unit(const struct g__ann_memory *memory) {
 	return 0;
 }
 
-static int emit_memory(struct g__ann *ann, const struct g__ir *ir) {
-	struct g__ann_memory *memory;
+static int emit_precision(struct g__ann *ann, const struct g__ir *ir) {
+	struct g__ann_precision *precision;
 	uint64_t n, m;
 	int l;
 
-	memory = &ann->memory;
-	memory->whole = ir->memory.whole;
-	memory->fraction = ir->memory.fraction;
-	memory->precision = ir->memory.precision;
+	precision = &ann->precision;
+	precision->whole = ir->precision.whole;
+	precision->fraction = ir->precision.fraction;
+	precision->precision = ir->precision.precision;
 	for (l=1; l<ir->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		m = (uint64_t)ir->nodes[l - 1].size;
-		memory->w[l] = memory->size;
-		memory->size += unit(memory) * n * m;
-		memory->b[l] = memory->size;
-		memory->size += unit(memory) * n * 1;
+		precision->w[l] = precision->size;
+		precision->size += unit(precision) * n * m;
+		precision->b[l] = precision->size;
+		precision->size += unit(precision) * n * 1;
 	}
-	memory->hard = memory->size;
+	precision->hard = precision->size;
 	for (l=1; l<ir->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		m = (uint64_t)ir->nodes[l - 1].size;
-		memory->w_[l] = memory->size;
-		memory->size += unit(memory) * n * m;
-		memory->b_[l] = memory->size;
-		memory->size += unit(memory) * n * 1;
+		precision->w_[l] = precision->size;
+		precision->size += unit(precision) * n * m;
+		precision->b_[l] = precision->size;
+		precision->size += unit(precision) * n * 1;
 	}
 	for (l=0; l<ir->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
-		memory->a_[l] = memory->size;
-		memory->size += unit(memory) * n * 1;
+		precision->a_[l] = precision->size;
+		precision->size += unit(precision) * n * 1;
 		if (l) {
-			memory->d_[l] = memory->size;
-			memory->size += unit(memory) * n * 1;
+			precision->d_[l] = precision->size;
+			precision->size += unit(precision) * n * 1;
 		}
 	}
 	return 0;
@@ -83,7 +83,7 @@ static int emit_memory(struct g__ann *ann, const struct g__ir *ir) {
 static int emit_program_initialize(struct g__ann *ann,
 				   const struct g__ir *ir,
 				   int program_) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
 	uint64_t n, m;
@@ -91,16 +91,16 @@ static int emit_program_initialize(struct g__ann *ann,
 
 	/* setup */
 
-	memory = &ann->memory;
+	precision = &ann->precision;
 	program = &ann->program[program_];
 
 	/* return */
 
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_RET;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * w[*]
@@ -114,21 +114,21 @@ static int emit_program_initialize(struct g__ann *ann,
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_RANDOM;
-		inst->arg[0].i = memory->w[l];
+		inst->arg[0].i = precision->w[l];
 		inst->arg[1].r = (-6.0 / (n + m)) * 1.0;
 		inst->arg[2].r = (+6.0 / (n + m)) * 2.0;
 		inst->arg[3].i = n * m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_CLEAR;
-		inst->arg[0].i = memory->b[l];
+		inst->arg[0].i = precision->b[l];
 		inst->arg[1].i = n * 1;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 	}
 	return 0;
 }
@@ -136,7 +136,7 @@ static int emit_program_initialize(struct g__ann *ann,
 static int emit_program_activate(struct g__ann *ann,
 				 const struct g__ir *ir,
 				 int program_) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
 	uint64_t n, m;
@@ -144,7 +144,7 @@ static int emit_program_activate(struct g__ann *ann,
 
 	/* setup */
 
-	memory = &ann->memory;
+	precision = &ann->precision;
 	program = &ann->program[program_];
 
 	/*
@@ -156,10 +156,10 @@ static int emit_program_activate(struct g__ann *ann,
 	/*--*/
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_RETARG;
-	inst->arg[0].i = memory->a_[l - 1];
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->arg[0].i = precision->a_[l - 1];
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * a_[*]:
@@ -170,11 +170,11 @@ static int emit_program_activate(struct g__ann *ann,
 	/*--*/
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_COPYX;
-	inst->arg[0].i = memory->a_[0];
+	inst->arg[0].i = precision->a_[0];
 	inst->arg[1].i = n;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * a_[*]:
@@ -193,31 +193,31 @@ static int emit_program_activate(struct g__ann *ann,
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_MAC1;
-		inst->arg[0].i = memory->a_[l];
-		inst->arg[1].i = memory->w[l];
-		inst->arg[2].i = memory->a_[l - 1];
+		inst->arg[0].i = precision->a_[l];
+		inst->arg[1].i = precision->w[l];
+		inst->arg[2].i = precision->a_[l - 1];
 		inst->arg[3].i = n;
 		inst->arg[4].i = m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_ADD;
-		inst->arg[0].i = memory->a_[l];
-		inst->arg[1].i = memory->b[l];
+		inst->arg[0].i = precision->a_[l];
+		inst->arg[1].i = precision->b[l];
 		inst->arg[2].i = n;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = 100 + ir->nodes[l].activation;
-		inst->arg[0].i = memory->a_[l];
+		inst->arg[0].i = precision->a_[l];
 		inst->arg[1].i = n;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 	}
 	return 0;
 }
@@ -225,7 +225,7 @@ static int emit_program_activate(struct g__ann *ann,
 static int emit_program_backprop(struct g__ann *ann,
 				 const struct g__ir *ir,
 				 int program_) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
 	uint64_t n, m;
@@ -233,16 +233,16 @@ static int emit_program_backprop(struct g__ann *ann,
 
 	/* setup */
 
-	memory = &ann->memory;
+	precision = &ann->precision;
 	program = &ann->program[program_];
 
 	/* return */
 
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_RET;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * d_[*]:
@@ -265,12 +265,12 @@ static int emit_program_backprop(struct g__ann *ann,
 	/*--*/
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_SUBY;
-	inst->arg[0].i = memory->d_[l];
-	inst->arg[1].i = memory->a_[l];
+	inst->arg[0].i = precision->d_[l];
+	inst->arg[1].i = precision->a_[l];
 	inst->arg[2].i = n;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * d_[*]:
@@ -294,23 +294,23 @@ static int emit_program_backprop(struct g__ann *ann,
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_MAC2;
-		inst->arg[0].i = memory->d_[l - 1];
-		inst->arg[1].i = memory->w[l];
-		inst->arg[2].i = memory->d_[l];
+		inst->arg[0].i = precision->d_[l - 1];
+		inst->arg[1].i = precision->w[l];
+		inst->arg[2].i = precision->d_[l];
 		inst->arg[3].i = n;
 		inst->arg[4].i = m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = 1000 + ir->nodes[l - 1].activation;
-		inst->arg[0].i = memory->d_[l - 1];
-		inst->arg[1].i = memory->a_[l - 1];
+		inst->arg[0].i = precision->d_[l - 1];
+		inst->arg[1].i = precision->a_[l - 1];
 		inst->arg[2].i = m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		--l;
 	}
 
@@ -328,23 +328,23 @@ static int emit_program_backprop(struct g__ann *ann,
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_ADD;
-		inst->arg[0].i = memory->b_[l];
-		inst->arg[1].i = memory->d_[l];
+		inst->arg[0].i = precision->b_[l];
+		inst->arg[1].i = precision->d_[l];
 		inst->arg[2].i = n;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_MAC3;
-		inst->arg[0].i = memory->w_[l];
-		inst->arg[1].i = memory->d_[l];
-		inst->arg[2].i = memory->a_[l - 1];
+		inst->arg[0].i = precision->w_[l];
+		inst->arg[1].i = precision->d_[l];
+		inst->arg[2].i = precision->a_[l - 1];
 		inst->arg[3].i = n;
 		inst->arg[4].i = m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 	}
 	return 0;
 }
@@ -352,7 +352,7 @@ static int emit_program_backprop(struct g__ann *ann,
 static int emit_program_train(struct g__ann *ann,
 			      const struct g__ir *ir,
 			      int program_) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
 	uint64_t n, m, size;
@@ -360,16 +360,16 @@ static int emit_program_train(struct g__ann *ann,
 
 	/* setup */
 
-	memory = &ann->memory;
+	precision = &ann->precision;
 	program = &ann->program[program_];
 
 	/* return */
 
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_RET;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * adjustments:
@@ -387,11 +387,11 @@ static int emit_program_train(struct g__ann *ann,
 	/*--*/
 	inst = newinst(program);
 	inst->opc = G__ANN_PROGRAM_INST_CLEAR;
-	inst->arg[0].i = memory->w_[1];
+	inst->arg[0].i = precision->w_[1];
 	inst->arg[1].i = size;
-	inst->whole = memory->whole;
-	inst->fraction = memory->fraction;
-	inst->precision = memory->precision;
+	inst->whole = precision->whole;
+	inst->fraction = precision->fraction;
+	inst->precision = precision->precision;
 
 	/*
 	 * for each (x -> y) pair:
@@ -422,26 +422,37 @@ static int emit_program_train(struct g__ann *ann,
 	for (l=1; l<ann->layers; ++l) {
 		n = (uint64_t)ir->nodes[l].size;
 		m = (uint64_t)ir->nodes[l - 1].size;
+		if (G__IR_OPTIMIZER_SGD != ir->optimizer.optimizer) {
+
+			/*
+			 * Currently only supporting SGD optimizer.
+			 */
+
+			G__DEBUG(G__ERR_SOFTWARE);
+			return -1;
+		}
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_MAC4;
-		inst->arg[0].i = memory->w[l];
-		inst->arg[1].i = memory->w_[l];
-		inst->arg[2].r = -((double)ir->eta / (double)ir->batch);
+		inst->arg[0].i = precision->w[l];
+		inst->arg[1].i = precision->w_[l];
+		inst->arg[2].r = -((double)ir->optimizer.learning_rate /
+				   (double)ir->batch);
 		inst->arg[3].i = n * m;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 		/*--*/
 		inst = newinst(program);
 		inst->opc = G__ANN_PROGRAM_INST_MAC4;
-		inst->arg[0].i = memory->b[l];
-		inst->arg[1].i = memory->b_[l];
-		inst->arg[2].r = -((double)ir->eta / (double)ir->batch);
+		inst->arg[0].i = precision->b[l];
+		inst->arg[1].i = precision->b_[l];
+		inst->arg[2].r = -((double)ir->optimizer.learning_rate /
+				   (double)ir->batch);
 		inst->arg[3].i = n * 1;
-		inst->whole = memory->whole;
-		inst->fraction = memory->fraction;
-		inst->precision = memory->precision;
+		inst->whole = precision->whole;
+		inst->fraction = precision->fraction;
+		inst->precision = precision->precision;
 	}
 	return 0;
 }
@@ -466,7 +477,7 @@ static int emit_program(struct g__ann *ann, const struct g__ir *ir) {
 }
 
 struct g__ann *g__ann_open(const struct g__ir *ir) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	struct g__ann *ann;
 	size_t n;
 	int i;
@@ -493,29 +504,29 @@ struct g__ann *g__ann_open(const struct g__ir *ir) {
 	/* memories */
 
 	n = ir->layers * sizeof (uint64_t);
-	memory = &ann->memory;
-	memory->w = g__malloc(n);
-	memory->b = g__malloc(n);
-	memory->a_ = g__malloc(n);
-	memory->d_ = g__malloc(n);
-	memory->w_ = g__malloc(n);
-	memory->b_ = g__malloc(n);
-	if (!memory->w ||
-	    !memory->b ||
-	    !memory->a_ ||
-	    !memory->d_ ||
-	    !memory->w_ ||
-	    !memory->b_) {
+	precision = &ann->precision;
+	precision->w = g__malloc(n);
+	precision->b = g__malloc(n);
+	precision->a_ = g__malloc(n);
+	precision->d_ = g__malloc(n);
+	precision->w_ = g__malloc(n);
+	precision->b_ = g__malloc(n);
+	if (!precision->w ||
+	    !precision->b ||
+	    !precision->a_ ||
+	    !precision->d_ ||
+	    !precision->w_ ||
+	    !precision->b_) {
 		g__ann_close(ann);
 		G__DEBUG(0);
 		return 0;
 	}
-	memset(memory->w, 0, n);
-	memset(memory->b, 0, n);
-	memset(memory->a_, 0, n);
-	memset(memory->d_, 0, n);
-	memset(memory->w_, 0, n);
-	memset(memory->b_, 0, n);
+	memset(precision->w, 0, n);
+	memset(precision->b, 0, n);
+	memset(precision->a_, 0, n);
+	memset(precision->d_, 0, n);
+	memset(precision->w_, 0, n);
+	memset(precision->b_, 0, n);
 
 	/* programs */
 
@@ -529,7 +540,7 @@ struct g__ann *g__ann_open(const struct g__ir *ir) {
 		}
 		memset(ann->program[i].inst, 0, n);
 	}
-	if (emit_memory(ann, ir) || emit_program(ann, ir)) {
+	if (emit_precision(ann, ir) || emit_program(ann, ir)) {
 		g__ann_close(ann);
 		G__DEBUG(0);
 		return 0;
@@ -538,17 +549,17 @@ struct g__ann *g__ann_open(const struct g__ir *ir) {
 }
 
 void g__ann_close(struct g__ann *ann) {
-	struct g__ann_memory *memory;
+	struct g__ann_precision *precision;
 	int i;
 
 	if (ann) {
-		memory = &ann->memory;
-		G__FREE(memory->w);
-		G__FREE(memory->b);
-		G__FREE(memory->a_);
-		G__FREE(memory->d_);
-		G__FREE(memory->w_);
-		G__FREE(memory->b_);
+		precision = &ann->precision;
+		G__FREE(precision->w);
+		G__FREE(precision->b);
+		G__FREE(precision->a_);
+		G__FREE(precision->d_);
+		G__FREE(precision->w_);
+		G__FREE(precision->b_);
 		for (i=0; i<G__ANN_PROGRAM_END; ++i) {
 			G__FREE(ann->program[i].inst);
 		}

@@ -20,6 +20,9 @@
 
 #include "g_ir.h"
 
+#define G__ANN_OPTIMIZER_NONE G__IR_OPTIMIZER_NONE
+#define G__ANN_OPTIMIZER_SGD  G__IR_OPTIMIZER_SGD
+
 #define G__ANN_PRECISION_NONE   G__IR_PRECISION_NONE
 #define G__ANN_PRECISION_FLOAT  G__IR_PRECISION_FLOAT
 #define G__ANN_PRECISION_DOUBLE G__IR_PRECISION_DOUBLE
@@ -56,7 +59,7 @@ struct g__ann {
 	int layers;
 	const char *module;
 	const char *prefix;
-	struct g__ann_memory {
+	struct g__ann_precision {
 		int whole;
 		int fraction;
 		int precision;
@@ -68,7 +71,7 @@ struct g__ann {
 		uint64_t *d_;  /* byte address */
 		uint64_t *w_;  /* byte address */
 		uint64_t *b_;  /* byte address */
-	} memory;
+	} precision;
 	struct g__ann_program {
 		int size;
 		struct g__ann_program_inst {

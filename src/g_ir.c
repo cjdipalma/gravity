@@ -22,10 +22,10 @@
 
 #define MARK_MODULE    0
 #define MARK_PREFIX    1
-#define MARK_PRECISION 2
-#define MARK_COSTFNC   3
-#define MARK_BATCH     4
-#define MARK_ETA       5
+#define MARK_OPTIMIZER 2
+#define MARK_PRECISION 3
+#define MARK_COSTFNC   4
+#define MARK_BATCH     5
 #define MARK_INPUT     6
 #define MARK_OUTPUT    7
 #define MARK_HIDDEN    8
@@ -122,19 +122,20 @@ int g__ir_top(void) {
 	if (!state.mark[MARK_PREFIX]) {
 		state.ir->prefix = "g";
 	}
+	if (!state.mark[MARK_OPTIMIZER]) {
+		state.ir->optimizer.optimizer = G__IR_OPTIMIZER_SGD;
+		state.ir->optimizer.learning_rate = 0.1;
+	}
 	if (!state.mark[MARK_PRECISION]) {
-		state.ir->memory.whole = 0;
-		state.ir->memory.fraction = 0;
-		state.ir->memory.precision = G__IR_PRECISION_FLOAT;
+		state.ir->precision.whole = 0;
+		state.ir->precision.fraction = 0;
+		state.ir->precision.precision = G__IR_PRECISION_FLOAT;
 	}
 	if (!state.mark[MARK_COSTFNC]) {
 		state.ir->costfnc = G__IR_COSTFNC_CROSS_ENTROPY;
 	}
 	if (!state.mark[MARK_BATCH]) {
 		state.ir->batch = 1;
-	}
-	if (!state.mark[MARK_ETA]) {
-		state.ir->eta = 0.1;
 	}
 	if (!state.mark[MARK_INPUT]) {
 		yyerror("missing .input specification");
@@ -222,6 +223,24 @@ int g__ir_prefix(const char *s) {
 	return 0;
 }
 
+int g__ir_optimizer(long optimizer, double learning_rate) {
+	if (state.mark[MARK_OPTIMIZER]) {
+		yyerror("duplicate .optimizer specification");
+		G__DEBUG(G__ERR_SYNTAX);
+		return -1;
+	}
+	if ((0.0 >= learning_rate) || (1.0 < learning_rate)) {
+		yyerror("invalid .optimizer specification '%f'",
+			learning_rate);
+		G__DEBUG(G__ERR_SYNTAX);
+		return -1;
+	}
+	state.ir->optimizer.optimizer = (int)optimizer;
+	state.ir->optimizer.learning_rate = learning_rate;
+	state.mark[MARK_OPTIMIZER] += 1;
+	return 0;
+}
+
 int g__ir_precision(long whole, long fraction, long precision) {
 	if (state.mark[MARK_PRECISION]) {
 		yyerror("duplicate .precision specification");
@@ -237,9 +256,9 @@ int g__ir_precision(long whole, long fraction, long precision) {
 		G__DEBUG(G__ERR_SYNTAX);
 		return -1;
 	}
-	state.ir->memory.whole = (int)whole;
-	state.ir->memory.fraction = (int)fraction;
-	state.ir->memory.precision = (int)precision;
+	state.ir->precision.whole = (int)whole;
+	state.ir->precision.fraction = (int)fraction;
+	state.ir->precision.precision = (int)precision;
 	state.mark[MARK_PRECISION] += 1;
 	return 0;
 }
@@ -268,22 +287,6 @@ int g__ir_batch(long batch) {
 	}
 	state.ir->batch = (int)batch;
 	state.mark[MARK_BATCH] += 1;
-	return 0;
-}
-
-int g__ir_eta(double eta) {
-	if (state.mark[MARK_ETA]) {
-		yyerror("duplicate .eta specification");
-		G__DEBUG(G__ERR_SYNTAX);
-		return -1;
-	}
-	if ((0.0 >= eta) || (1.0 < eta)) {
-		yyerror("invalid .eta specification '%f'", eta);
-		G__DEBUG(G__ERR_SYNTAX);
-		return -1;
-	}
-	state.ir->eta = eta;
-	state.mark[MARK_ETA] += 1;
 	return 0;
 }
 

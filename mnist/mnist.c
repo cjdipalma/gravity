@@ -81,7 +81,7 @@ static int train_and_test(g_t g,
 	if (!x || !y) {
 		free(x);
 		free(y);
-		printf("out of memory\n");
+		fprintf(stderr, "out of memory\n");
 		return -1;
 	}
 
@@ -146,17 +146,17 @@ static uint8_t *load_labels(const char *pathname, int *n) {
 
 	file = fopen(pathname, "r");
 	if (!file) {
-		printf("unable to open file\n");
+		fprintf(stderr, "unable to open file\n");
 		return 0;
 	}
 	if (sizeof (meta) != fread(meta, 1, sizeof (meta), file)) {
 		fclose(file);
-		printf("unable to read file\n");
+		fprintf(stderr, "unable to read file\n");
 		return 0;
 	}
 	if ((0x1080000 != meta[0]) || (0 >= swap(meta[1]))) {
 		fclose(file);
-		printf("invalid file\n");
+		fprintf(stderr, "invalid file\n");
 		return 0;
 	}
 	(*n) = swap(meta[1]);
@@ -164,13 +164,13 @@ static uint8_t *load_labels(const char *pathname, int *n) {
 	data = (uint8_t *)malloc(meta[1]);
 	if (!data) {
 		fclose(file);
-		printf("out of memory\n");
+		fprintf(stderr, "out of memory\n");
 		return 0;
 	}
 	if ((size_t)meta[1] != fread(data, 1, meta[1], file)) {
 		free(data);
 		fclose(file);
-		printf("unable to read file\n");
+		fprintf(stderr, "unable to read file\n");
 		return 0;
 	}
 	fclose(file);
@@ -184,12 +184,12 @@ static uint8_t *load_images(const char *pathname, int *n) {
 
 	file = fopen(pathname, "r");
 	if (!file) {
-		printf("unable to open file\n");
+		fprintf(stderr, "unable to open file\n");
 		return 0;
 	}
 	if (sizeof (meta) != fread(meta, 1, sizeof (meta), file)) {
 		fclose(file);
-		printf("unable to read file\n");
+		fprintf(stderr, "unable to read file\n");
 		return 0;
 	}
 	if ((0x3080000 != meta[0]) ||
@@ -197,7 +197,7 @@ static uint8_t *load_images(const char *pathname, int *n) {
 	    (28 != swap(meta[2])) ||
 	    (28 != swap(meta[3]))) {
 		fclose(file);
-		printf("invalid file\n");
+		fprintf(stderr, "invalid file\n");
 		return 0;
 	}
 	(*n) = swap(meta[1]);
@@ -205,13 +205,13 @@ static uint8_t *load_images(const char *pathname, int *n) {
 	data = (uint8_t *)malloc(meta[1]);
 	if (!data) {
 		fclose(file);
-		printf("out of memory\n");
+		fprintf(stderr, "out of memory\n");
 		return 0;
 	}
 	if ((size_t)meta[1] != fread(data, 1, meta[1], file)) {
 		free(data);
 		fclose(file);
-		printf("unable to read file\n");
+		fprintf(stderr, "unable to read file\n");
 		return 0;
 	}
 	fclose(file);
@@ -227,17 +227,17 @@ int main() {
 	/* open ANN */
 
 	g_debug(1);
-	g = g_open(".precision " TOSTRING(REAL_T),
+	g = g_open(".optimizer sgd 0.1",
+		   ".precision " TOSTRING(REAL_T),
 		   ".costfnc cross_entropy",
 		   ".batch " TOSTRING(BATCH),
-		   ".eta 0.1",
 		   ".input 28 * 28",
 		   ".output 10 softmax",
 		   ".hidden 100 relu",
 		   ".hidden 100 relu",
 		   0);
 	if (!g) {
-		printf("g_open error\n");
+		fprintf(stderr, "g_open error\n");
 		return -1;
 	}
 	printf("version: %d\n", g_version());
@@ -258,7 +258,7 @@ int main() {
 	    (train_y_n != train_x_n) ||
 	    (test_y_n != test_x_n)) {
 		e = -1;
-		printf("failed to load valid train/test data\n");
+		fprintf(stderr, "failed to load valid train/test data\n");
 	}
 
 	/* train and test */
@@ -274,17 +274,17 @@ int main() {
 					   train_y_n,
 					   test_y_n)) {
 				e = -1;
-				printf("failed to train/test\n");
+				fprintf(stderr, "failed to train/test\n");
 			}
 		}
 	}
 
 	/* close */
 
+	g_close(g);
 	free(train_y);
 	free(train_x);
 	free(test_y);
 	free(test_x);
-	g_close(g);
 	return e;
 }

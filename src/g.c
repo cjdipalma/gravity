@@ -44,10 +44,10 @@ struct g {
 static int populate(const char *pathname,
 		    const char *module,
 		    const char *prefix,
+		    const char *optimizer,
 		    const char *precision,
 		    const char *costfnc,
 		    const char *batch,
-		    const char *eta,
 		    const char *input,
 		    const char *output,
 		    const char *layers[]) {
@@ -70,10 +70,10 @@ static int populate(const char *pathname,
 			"%s ;\n",
 			module,
 			prefix,
+			optimizer,
 			precision,
 			costfnc,
 			batch,
-			eta,
 			input,
 			output)) {
 		fclose(file);
@@ -104,10 +104,10 @@ void g_debug(int enabled) {
 	}
 }
 
-g_t g_open(const char *precision,
+g_t g_open(const char *optimizer,
+	   const char *precision,
 	   const char *costfnc,
 	   const char *batch,
-	   const char *eta,
 	   const char *input,
 	   const char *output,
 	   /* hidden */ ...) {
@@ -123,10 +123,10 @@ g_t g_open(const char *precision,
 	i = 0;
 	tag = rand();
 	memset(layers, 0, sizeof (layers));
-	if (!g__strlen(precision) ||
+	if (!g__strlen(optimizer) ||
+	    !g__strlen(precision) ||
 	    !g__strlen(costfnc) ||
 	    !g__strlen(batch) ||
-	    !g__strlen(eta) ||
 	    !g__strlen(input) ||
 	    !g__strlen(output)) {
 		G__DEBUG(G__ERR_ARGUMENT);
@@ -169,10 +169,10 @@ g_t g_open(const char *precision,
 	if (populate(pathname,
 		     module,
 		     ".prefix \"\"",
+		     optimizer,
 		     precision,
 		     costfnc,
 		     batch,
-		     eta,
 		     input,
 		     output,
 		     layers)) {

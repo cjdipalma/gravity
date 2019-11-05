@@ -750,27 +750,27 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      "int %s_version(void) {\n"
 	      "  return %d;\n"
 	      "}\n\n",
-	      prefix,
+	      ann->prefix,
 	      G__VERSION) ||
 	    P(file1,
 	      "size_t %s_memory_size(void) {\n"
 	      "  return %lu * sizeof (%s);\n"
 	      "}\n\n",
-	      prefix,
-	      UL(ann->memory.size),
+	      ann->prefix,
+	      UL(ann->precision.size),
 	      precision(inst1)) ||
 	    P(file1,
 	      "size_t %s_memory_hard(void) {\n"
 	      "  return %lu * sizeof (%s);\n"
 	      "}\n\n",
-	      prefix,
-	      UL(ann->memory.hard),
+	      ann->prefix,
+	      UL(ann->precision.hard),
 	      precision(inst2)) ||
 	    P(file1,
 	      "void %s_initialize(void *m) {\n"
 	      "  _initialize_((char *)m);\n"
 	      "}\n\n",
-	      prefix) ||
+	      ann->prefix) ||
 	    P(file1,
 	      "void *%s_activate(void *m, const void *x) {\n"
 	      "  return _activate_((char *)m, (const %s *)x);\n"
@@ -800,10 +800,10 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      "#endif /* __cplusplus */\n\n",
 	      prefix,
 	      prefix) ||
-	    P(file2, "int %s_version(void);\n", prefix) ||
-	    P(file2, "size_t %s_memory_size(void);\n", prefix) ||
-	    P(file2, "size_t %s_memory_hard(void);\n", prefix) ||
-	    P(file2, "void %s_initialize(void *m);\n", prefix) ||
+	    P(file2, "int %s_version(void);\n", ann->prefix) ||
+	    P(file2, "size_t %s_memory_size(void);\n", ann->prefix) ||
+	    P(file2, "size_t %s_memory_hard(void);\n", ann->prefix) ||
+	    P(file2, "void %s_initialize(void *m);\n", ann->prefix) ||
 	    P(file2,
 	      "void *%s_activate(void *m, const void *x);\n",
 	      ann->prefix) ||

@@ -33,10 +33,10 @@ int g_version(void);
 
 void g_debug(int enabled);
 
-g_t g_open(const char *precision,
+g_t g_open(const char *optimizer,
+	   const char *precision,
 	   const char *costfnc,
 	   const char *batch,
-	   const char *eta,
 	   const char *input,
 	   const char *output,
 	   /* hidden */ ...);
