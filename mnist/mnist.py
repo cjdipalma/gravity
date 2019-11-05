@@ -1,5 +1,5 @@
 #
-# mnist.c
+# mnist.py
 # Copyright (C) Tony Givargis, 2019
 #
 # This file is part of The Gravity Compiler.
