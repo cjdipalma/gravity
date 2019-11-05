@@ -34,5 +34,5 @@ model.compile(optimizer='adam',
 
 model.fit(train_x, train_y, batch_size=8, epochs=4)
 
-val_loss, val_acc = model.evaluate(test_x, test_y)
-print("Accuracy: ", val_acc)
+loss, accuracy = model.evaluate(test_x, test_y)
+print("Accuracy: ", accuracy)
