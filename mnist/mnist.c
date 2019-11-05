@@ -22,14 +22,15 @@
 #include <stdio.h>
 #include "../src/g.h"
 
-#define UL(x) ((unsigned long)(x))
+#define BATCH  8
+#define EPOCHS 4
+#define REAL_T float
 
-#define BATCH  8  /* should match .batch specification */
-#define EPOCHS 4  /* number of training episodes */
+#define MKSTRING(x) #x
+#define TOSTRING(x) MKSTRING(x)
+#define UL(x)       ((unsigned long)(x))
 
-typedef float real_t; /* should match .precision specification */
-
-static g_t g;
+typedef REAL_T real_t;
 
 static uint64_t usec(void) {
 	struct timeval t;
@@ -63,16 +64,17 @@ static int argmax(const real_t *a, int n) {
 	return j;
 }
 
-static int train_and_test(const uint8_t *train_labels,
-			  const uint8_t *train_images,
-			  const uint8_t *test_labels,
-			  const uint8_t *test_images,
+static int train_and_test(g_t g,
+			  const uint8_t *train_y,
+			  const uint8_t *train_x,
+			  const uint8_t *test_y,
+			  const uint8_t *test_x,
 			  int train_n,
 			  int test_n) {
 	const uint8_t *labels, *images;
 	int i, j, k, m, error;
 	real_t *x, *y, *z;
-	uint64_t t;
+	uint64_t t[3];
 
 	x = (real_t *)malloc(BATCH * 28 * 28 * sizeof (x[0]));
 	y = (real_t *)malloc(BATCH * 10 * sizeof (y[0]));
@@ -85,10 +87,10 @@ static int train_and_test(const uint8_t *train_labels,
 
 	/* train */
 
-	t = usec();
+	t[0] = usec();
 	m = train_n / BATCH;
-	labels = train_labels;
-	images = train_images;
+	labels = train_y;
+	images = train_x;
 	for (i=0; i<m; ++i) {
 		for (j=0; j<BATCH; ++j) {
 			for (k=0; k<(28*28); ++k) {
@@ -103,14 +105,15 @@ static int train_and_test(const uint8_t *train_labels,
 		printf("\r%06d/%06d", i, m);
 		fflush(stdout);
 	}
-	printf("\rtrain done (%.2f sec)\n", (usec() - t) * 1e-6);
+	t[1] = usec() - t[0];
+	printf("\rtrain done (%.2f sec)\n", t[1] * 1e-6);
 
 	/* test */
 
-	t = usec();
+	t[0] = usec();
 	error = 0;
-	labels = test_labels;
-	images = test_images;
+	labels = test_y;
+	images = test_x;
 	for (i=0; i<test_n; ++i) {
 		for (k=0; k<(28*28); ++k) {
 			x[k] = (*images++) / 255.0;
@@ -122,7 +125,12 @@ static int train_and_test(const uint8_t *train_labels,
 		printf("\r%06d/%06d", i, test_n);
 		fflush(stdout);
 	}
-	printf("\rtest done (%.2f sec, %d errors)\n", (usec()-t)*1e-6, error);
+	t[2] = usec() - t[0];
+	printf("\rtest done (%.2f sec, %d errors)\n", t[2] * 1e-6, error);
+
+	printf("Train Time: %.0f usec/sample\n", (double)t[1] / train_n);
+	printf("Test  Time: %.0f usec/sample\n", (double)t[2] / train_n);
+	printf("Accuracy  : %.4f\n", 1.0 - ((double)error / test_n));
 
 	/* done */
 
@@ -211,16 +219,17 @@ static uint8_t *load_images(const char *pathname, int *n) {
 }
 
 int main() {
-	int train_labels_n, train_images_n, test_labels_n, test_images_n;
-	uint8_t *train_labels, *train_images, *test_labels, *test_images;
+	int train_y_n, train_x_n, test_y_n, test_x_n;
+	uint8_t *train_y, *train_x, *test_y, *test_x;
 	int i, e;
+	g_t g;
 
 	/* open ANN */
 
 	g_debug(1);
-	g = g_open(".precision float",
+	g = g_open(".precision " TOSTRING(REAL_T),
 		   ".costfnc cross_entropy",
-		   ".batch 8",
+		   ".batch " TOSTRING(BATCH),
 		   ".eta 0.1",
 		   ".input 28 * 28",
 		   ".output 10 softmax",
@@ -238,16 +247,16 @@ int main() {
 	/* load train/test data */
 
 	e = 0;
-	train_labels = load_labels("data/train-labels", &train_labels_n);
-	train_images = load_images("data/train-images", &train_images_n);
-	test_labels = load_labels("data/test-labels", &test_labels_n);
-	test_images = load_images("data/test-images", &test_images_n);
-	if (!train_labels ||
-	    !train_images ||
-	    !test_labels ||
-	    !test_images ||
-	    (train_labels_n != train_images_n) ||
-	    (test_labels_n != test_images_n)) {
+	train_y = load_labels("data/train-labels", &train_y_n);
+	train_x = load_images("data/train-images", &train_x_n);
+	test_y = load_labels("data/test-labels", &test_y_n);
+	test_x = load_images("data/test-images", &test_x_n);
+	if (!train_y ||
+	    !train_x ||
+	    !test_y ||
+	    !test_x ||
+	    (train_y_n != train_x_n) ||
+	    (test_y_n != test_x_n)) {
 		e = -1;
 		printf("failed to load valid train/test data\n");
 	}
@@ -257,12 +266,13 @@ int main() {
 	for (i=0; i<EPOCHS; ++i) {
 		printf("--- EPOCH %d ---\n", i);
 		if (!e) {
-			if (train_and_test(train_labels,
-					   train_images,
-					   test_labels,
-					   test_images,
-					   train_labels_n,
-					   test_labels_n)) {
+			if (train_and_test(g,
+					   train_y,
+					   train_x,
+					   test_y,
+					   test_x,
+					   train_y_n,
+					   test_y_n)) {
 				e = -1;
 				printf("failed to train/test\n");
 			}
@@ -271,10 +281,10 @@ int main() {
 
 	/* close */
 
-	free(train_labels);
-	free(train_images);
-	free(test_labels);
-	free(test_images);
+	free(train_y);
+	free(train_x);
+	free(test_y);
+	free(test_x);
 	g_close(g);
 	return e;
 }
