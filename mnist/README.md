@@ -21,6 +21,8 @@ All benchmarks running on:
   * 4 GHz Quad-Core Intel Core i7
   * 32 GB 1867 MHz DDR3
   * Train/Test data preloaded in RAM and excluded from time measurements
+  * Python 3.6.8
+  * Tensorflow 2.0.0
 
 ```
    Implementation  | Accuracy |  Train Time   |   Test Time
