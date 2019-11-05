@@ -3,7 +3,7 @@
 Using the Gravity compiler to build a handwritten digits recognizer from the
 MNIST database [http://yann.lecun.com/exdb/mnist/]. The implementation uses
 Gravity as a just-in-time compiler. A python3 reference implementation is
-provided using tensorflow using exactly the same parameters.
+provided using tensorflow and identical model/hyper-parameters.
 
 ## Obtaining, Building & Running Gravity/MNIST
   1. $ git clone https://github.com/givargis/gravity
