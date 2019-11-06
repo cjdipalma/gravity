@@ -111,12 +111,14 @@ g_t g_open(const char *optimizer,
 	   const char *input,
 	   const char *output,
 	   /* hidden */ ...) {
-	const char *tmp, pathname[64], module[64], *layers[1+MAX_LAYERS];
+	const char *tmp, module[256], *layers[1+MAX_LAYERS];
 	const struct g__ir *ir;
 	struct g__ann *ann;
 	struct g *g;
 	va_list va;
 	int tag, i;
+	size_t n;
+	char *s;
 
 	/* check arguments */
 
@@ -164,9 +166,16 @@ g_t g_open(const char *optimizer,
 	tmp = tmp ? tmp : getenv("TMP");
 	tmp = tmp ? tmp : getenv("TEMP");
 	tmp = tmp ? tmp : ".";
-	g__sprintf((char *)pathname, sizeof (pathname), "%s/_%x_.g", tmp, tag);
+	n = g__strlen(tmp) + 32;
+	s = g__malloc(n);
+	if (!s) {
+		g_close(g);
+		G__DEBUG(0);
+		return 0;
+	}
+	g__sprintf(s, n, "%s/_%x_.g", tmp, tag);
 	g__sprintf((char *)module, sizeof (module), ".module \"_%x_\"", tag);
-	if (populate(pathname,
+	if (populate(s,
 		     module,
 		     ".prefix \"\"",
 		     optimizer,
@@ -177,16 +186,18 @@ g_t g_open(const char *optimizer,
 		     output,
 		     layers)) {
 		g_close(g);
+		G__FREE(s);
 		G__DEBUG(0);
 		return 0;
 	}
 
 	/* g compile */
 
-	ir = g__ir_parse(pathname);
-	g__unlink(pathname);
+	ir = g__ir_parse(s);
+	g__unlink(s);
 	if (!ir) {
 		g_close(g);
+		G__FREE(s);
 		G__DEBUG(0);
 		return 0;
 	}
@@ -195,6 +206,7 @@ g_t g_open(const char *optimizer,
 	if (!ann || g__emitc(ann, tmp)) {
 		g__ann_close(ann);
 		g_close(g);
+		G__FREE(s);
 		G__DEBUG(0);
 		return 0;
 	}
@@ -202,11 +214,12 @@ g_t g_open(const char *optimizer,
 
 	/* c compile */
 
-	g__sprintf((char *)pathname, sizeof (pathname), "%s/_%x_.c", tmp, tag);
-	g->vcm = g__vcm_open(pathname);
-	g__unlink(pathname);
-	g__sprintf((char *)pathname, sizeof (pathname), "%s/_%x_.h", tmp, tag);
-	g__unlink(pathname);
+	g__sprintf(s, n, "%s/_%x_.c", tmp, tag);
+	g->vcm = g__vcm_open(s);
+	g__unlink(s);
+	g__sprintf(s, n, "%s/_%x_.h", tmp, tag);
+	g__unlink(s);
+	G__FREE(s);
 	if (!g->vcm) {
 		g_close(g);
 		G__DEBUG(0);

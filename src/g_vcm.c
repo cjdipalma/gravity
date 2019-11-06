@@ -69,8 +69,10 @@ static int compile(const char *input, const char *output) {
 }
 
 g__vcm_t g__vcm_open(const char *pathname) {
-	const char *tmp, output[64];
 	struct g__vcm *vcm;
+	const char *tmp;
+	size_t n;
+	char *s;
 
 	assert( g__strlen(pathname) );
 
@@ -78,20 +80,29 @@ g__vcm_t g__vcm_open(const char *pathname) {
 	tmp = tmp ? tmp : getenv("TMP");
 	tmp = tmp ? tmp : getenv("TEMP");
 	tmp = tmp ? tmp : ".";
-	g__sprintf((char *)output, sizeof (output), "%s/_%x_.so", tmp, rand());
-	if (compile(pathname, output)) {
+	n = g__strlen(tmp) + 32;
+	s = g__malloc(n);
+	if (!s) {
+		G__DEBUG(0);
+		return 0;
+	}
+	g__sprintf(s, n, "%s/_%x_.so", tmp, rand());
+	if (compile(pathname, s)) {
+		G__FREE(s);
 		G__DEBUG(0);
 		return 0;
 	}
 	vcm = g__malloc(sizeof (struct g__vcm));
 	if (!vcm) {
-		g__unlink(output);
+		g__unlink(s);
+		G__FREE(s);
 		G__DEBUG(0);
 		return 0;
 	}
 	memset(vcm, 0, sizeof (struct g__vcm));
-	vcm->handle = dlopen(output, RTLD_LAZY | RTLD_LOCAL);
-	g__unlink(output);
+	vcm->handle = dlopen(s, RTLD_LAZY | RTLD_LOCAL);
+	g__unlink(s);
+	G__FREE(s);
 	if (!vcm->handle) {
 		g__vcm_close(vcm);
 		G__DEBUG(G__ERR_SYSTEM);

@@ -826,24 +826,26 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 
 int g__emitc(const struct g__ann *ann, const char *tmp) {
 	FILE *file1, *file2;
+	size_t n;
 	char *s;
 
 	assert( ann );
 
-	s = g__malloc(g__strlen(ann->module) + g__strlen(tmp) + 32);
+	n = g__strlen(ann->module) + g__strlen(tmp) + 32;
+	s = g__malloc(n);
 	if (!s) {
 		G__DEBUG(0);
 		return -1;
 	}
 	g__sprintf(s,
-		   g__strlen(ann->module) + 32,
+		   n,
 		   "%s%s%s.c",
 		   g__strlen(tmp) ? tmp : "",
 		   g__strlen(tmp) ? "/" : "",
 		   ann->module);
 	file1 = fopen(s, "w");
 	g__sprintf(s,
-		   g__strlen(ann->module) + 32,
+		   n,
 		   "%s%s%s.h",
 		   g__strlen(tmp) ? tmp : "",
 		   g__strlen(tmp) ? "/" : "",
