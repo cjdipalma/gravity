@@ -26,14 +26,12 @@ All benchmarks running on:
   * Tensorflow 2.0.0
 
 ```
-   Implementation  | Accuracy |  Train Time   |   Test Time   |   Mememory
-                   |          | (usec/sample) | (usec/sample) |     (MB)
-                   |          |               |               |-------|--------
-		   |          |               |               | Train | Activ.
--------------------|----------|---------------|---------------|-------|--------
-     Gravity/C     |  0.9670  |     124       |      18       | 2.887 | 1.434
+   Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
+                   |          | (usec/sample) | (usec/sample) |      (MB)
+-------------------|----------|---------------|---------------|----------------
+     Gravity/C     |  0.9670  |     124       |      18       |  2.89 / 1.43
 -------------------|--------------------------|---------------|----------------
- Python/Tensorflow |  0.9707  |     154       |      39       |      209*
+ Python/Tensorflow |  0.9707  |     154       |      39       |  209* / ----
 
 * measuring libtensorflow_framework.so.2 resident memory only
 ```
