@@ -29,7 +29,7 @@ All benchmarks running on:
    Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
                    |          | (usec/sample) | (usec/sample) |      (MB)
 -------------------|----------|---------------|---------------|----------------
-     Gravity/C     |  0.9670  |     124       |      18       |  2.89 / 1.43
+     Gravity/C     |  0.9670  |     124       |      18       |  0.722 / 0.358
 -------------------|--------------------------|---------------|----------------
  Python/Tensorflow |  0.9707  |     154       |      39       |  209* / ----
 

@@ -754,18 +754,16 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	      G__VERSION) ||
 	    P(file1,
 	      "size_t %s_memory_size(void) {\n"
-	      "  return %lu * sizeof (%s);\n"
+	      "  return %lu;\n"
 	      "}\n\n",
 	      ann->prefix,
-	      UL(ann->precision.size),
-	      precision(inst1)) ||
+	      UL(ann->precision.size)) ||
 	    P(file1,
 	      "size_t %s_memory_hard(void) {\n"
-	      "  return %lu * sizeof (%s);\n"
+	      "  return %lu;\n"
 	      "}\n\n",
 	      ann->prefix,
-	      UL(ann->precision.hard),
-	      precision(inst2)) ||
+	      UL(ann->precision.hard)) ||
 	    P(file1,
 	      "void %s_initialize(void *m) {\n"
 	      "  _initialize_((char *)m);\n"
