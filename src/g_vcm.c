@@ -15,6 +15,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <dlfcn.h>
