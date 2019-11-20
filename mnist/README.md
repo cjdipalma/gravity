@@ -16,7 +16,9 @@ provided using tensorflow and identical model/hyper-parameters.
 
 ## Performance
 
-All benchmarks running on:
+### Desktop
+
+Benchmarks running on:
   * Train/Test data preloaded in RAM and excluded from time measurements
   * 4 GHz Quad-Core Intel Core i7
   * 32 GB 1867 MHz DDR3
@@ -34,4 +36,24 @@ All benchmarks running on:
  Python/Tensorflow |  0.9707  |     154       |      39       |  209* / ----
 
 * measuring libtensorflow_framework.so.2 resident memory only
+```
+
+### Raspberry Pi
+
+Benchmarks running on:
+  * Train/Test data preloaded in RAM and excluded from time measurements
+  * 1.4 GHz 64-bit quad-core ARM Cortex-A53
+  * 1 GB LPDDR2 SDRAM
+  * Raspbian 9.11
+  * GCC 6.3.0
+  * Python ?
+  * Tensorflow ?
+
+```
+   Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
+                   |          | (usec/sample) | (usec/sample) |      (MB)
+-------------------|----------|---------------|---------------|----------------
+     Gravity/C     |  0.9670  |     2060      |      139      |  0.722 / 0.358
+-------------------|--------------------------|---------------|----------------
+ Python/Tensorflow |    ?     |       ?       |       ?       |  ? / ----
 ```
