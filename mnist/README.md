@@ -16,7 +16,7 @@ provided using tensorflow and identical model/hyper-parameters.
 
 ## Performance
 
-### Desktop
+### iMac (Retina 5K, 27-inch, Late 2015)
 
 Benchmarks running on:
   * Train/Test data preloaded in RAM and excluded from time measurements
@@ -38,11 +38,11 @@ Benchmarks running on:
 * measuring libtensorflow_framework.so.2 resident memory only
 ```
 
-### Raspberry Pi
+### Raspberry Pi 3 Model B+
 
 Benchmarks running on:
   * Train/Test data preloaded in RAM and excluded from time measurements
-  * 1.4 GHz 64-bit quad-core ARM Cortex-A53
+  * 1.4 GHz 64-bit Quad-Core ARM Cortex-A53
   * 1 GB LPDDR2 SDRAM
   * Raspbian 9.11
   * GCC 6.3.0
