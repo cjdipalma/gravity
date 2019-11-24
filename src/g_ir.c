@@ -1,6 +1,6 @@
 /**
  * g_ir.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -47,7 +47,9 @@ static struct {
 	} *root;
 } state;
 
-static int validc(const char *s) {
+static int
+validc(const char *s)
+{
 	if (*s) {
 		if (('_' != *s) && !isalpha(*s)) {
 			return -1;
@@ -62,7 +64,9 @@ static int validc(const char *s) {
 	return 0;
 }
 
-const struct g__ir *g__ir_parse(const char *pathname) {
+const struct g__ir *
+g__ir_parse(const char *pathname)
+{
 	FILE *file;
 
 	assert( !state._mem_ && g__strlen(pathname) );
@@ -93,7 +97,9 @@ const struct g__ir *g__ir_parse(const char *pathname) {
 	return state.ir;
 }
 
-void g__ir_destroy(void) {
+void
+g__ir_destroy(void)
+{
 	void **link;
 
 	link = state._mem_;
@@ -110,7 +116,9 @@ void g__ir_destroy(void) {
  * Lexer/Parser Backend
  *---------------------------------------------------------------------------*/
 
-int g__ir_top(void) {
+int
+g__ir_top(void)
+{
 	struct node *node;
 	int i, n;
 
@@ -191,7 +199,9 @@ int g__ir_top(void) {
 	return 0;
 }
 
-int g__ir_module(const char *s) {
+int
+g__ir_module(const char *s)
+{
 	if (state.mark[MARK_MODULE]) {
 		yyerror("duplicate .module specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -207,7 +217,9 @@ int g__ir_module(const char *s) {
 	return 0;
 }
 
-int g__ir_prefix(const char *s) {
+int
+g__ir_prefix(const char *s)
+{
 	if (state.mark[MARK_PREFIX]) {
 		yyerror("duplicate .prefix specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -223,7 +235,9 @@ int g__ir_prefix(const char *s) {
 	return 0;
 }
 
-int g__ir_optimizer(long optimizer, double learning_rate) {
+int
+g__ir_optimizer(long optimizer, double learning_rate)
+{
 	if (state.mark[MARK_OPTIMIZER]) {
 		yyerror("duplicate .optimizer specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -241,7 +255,9 @@ int g__ir_optimizer(long optimizer, double learning_rate) {
 	return 0;
 }
 
-int g__ir_precision(long whole, long fraction, long precision) {
+int
+g__ir_precision(long whole, long fraction, long precision)
+{
 	if (state.mark[MARK_PRECISION]) {
 		yyerror("duplicate .precision specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -263,7 +279,9 @@ int g__ir_precision(long whole, long fraction, long precision) {
 	return 0;
 }
 
-int g__ir_costfnc(long costfnc) {
+int
+g__ir_costfnc(long costfnc)
+{
 	if (state.mark[MARK_COSTFNC]) {
 		yyerror("duplicate .costfnc specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -274,7 +292,9 @@ int g__ir_costfnc(long costfnc) {
 	return 0;
 }
 
-int g__ir_batch(long batch) {
+int
+g__ir_batch(long batch)
+{
 	if (state.mark[MARK_BATCH]) {
 		yyerror("duplicate .batch specification");
 		G__DEBUG(G__ERR_SYNTAX);
@@ -290,7 +310,9 @@ int g__ir_batch(long batch) {
 	return 0;
 }
 
-int g__ir_input(long size) {
+int
+g__ir_input(long size)
+{
 	struct node *node;
 
 	if (state.mark[MARK_INPUT]) {
@@ -317,7 +339,9 @@ int g__ir_input(long size) {
 	return 0;
 }
 
-int g__ir_output(long size, long activation) {
+int
+g__ir_output(long size, long activation)
+{
 	struct node *node;
 
 	if (state.mark[MARK_OUTPUT]) {
@@ -345,7 +369,9 @@ int g__ir_output(long size, long activation) {
 	return 0;
 }
 
-int g__ir_hidden(long size, long activation) {
+int
+g__ir_hidden(long size, long activation)
+{
 	struct node *node;
 
 	if (MAX_SIZE < size) {
@@ -368,7 +394,9 @@ int g__ir_hidden(long size, long activation) {
 	return 0;
 }
 
-void *g__ir_malloc(size_t n) {
+void *
+g__ir_malloc(size_t n)
+{
 	void **link;
 
 	assert( n );
@@ -384,7 +412,9 @@ void *g__ir_malloc(size_t n) {
 	return (link + 1);
 }
 
-char *g__ir_strdup(const char *s_) {
+char *
+g__ir_strdup(const char *s_)
+{
 	char *s;
 
 	assert( s_ );

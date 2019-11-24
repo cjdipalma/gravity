@@ -1,6 +1,6 @@
 /**
  * g_lang.l
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -75,7 +75,9 @@
 
 int yyerroron;
 
-void yyerror(const char *format, ...) {
+void
+yyerror(const char *format, ...)
+{
         va_list va;
 
         if (yyerroron) {

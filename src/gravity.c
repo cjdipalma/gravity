@@ -1,6 +1,6 @@
 /**
  * gravity.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -17,7 +17,9 @@
 
 #include "g_emitc.h"
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
 	const struct g__ir *ir;
 	const char *pathname;
 	struct g__ann *ann;

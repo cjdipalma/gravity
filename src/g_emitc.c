@@ -1,6 +1,6 @@
 /**
  * g_emitc.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -21,7 +21,9 @@
 
 #define P print
 
-static const char *capitalize(const char *s_) {
+static const char *
+capitalize(const char *s_)
+{
 	size_t i;
 	char *s;
 
@@ -37,7 +39,9 @@ static const char *capitalize(const char *s_) {
 	return s;
 }
 
-static int print(FILE *file, const char *format, ...) {
+static int
+print(FILE *file, const char *format, ...)
+{
 	va_list ap;
 
 	va_start(ap, format);
@@ -50,7 +54,9 @@ static int print(FILE *file, const char *format, ...) {
 	return 0;
 }
 
-static const char *precision(const struct g__ann_program_inst *inst) {
+static const char *
+precision(const struct g__ann_program_inst *inst)
+{
 	switch (inst->precision) {
 	case G__ANN_PRECISION_FLOAT : return "float";
 	case G__ANN_PRECISION_DOUBLE: return "double";
@@ -63,7 +69,9 @@ static const char *precision(const struct g__ann_program_inst *inst) {
 	return 0;
 }
 
-static const char *type(uint64_t x) {
+static const char *
+type(uint64_t x)
+{
 	if (0xff >= x) {
 		return "uint32_t";
 	}
@@ -76,7 +84,9 @@ static const char *type(uint64_t x) {
 	return "uint64_t";
 }
 
-static int inst_ret(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_ret(const struct g__ann_program_inst *inst, FILE *file)
+{
 	G__UNUSED(inst);
 	if (P(file,
 	      "  { /* RET */\n"
@@ -88,7 +98,9 @@ static int inst_ret(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_retarg(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_retarg(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* RETARG */\n"
 	      "    return (%s *)( m_ + %lu );\n"
@@ -101,7 +113,9 @@ static int inst_retarg(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_batchloop(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_batchloop(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* BATCHLOOP */\n"
 	      "    %s i;\n"
@@ -120,7 +134,9 @@ static int inst_batchloop(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_random(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_random(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* RANDOM */\n"
 	      "    %s r, *z = (%s *)( m_ + %lu );\n"
@@ -144,7 +160,9 @@ static int inst_random(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_clear(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_clear(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* CLEAR */\n"
 	      "    memset(m_ + %lu, 0, %lu * sizeof (%s));\n"
@@ -158,7 +176,9 @@ static int inst_clear(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_copyx(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_copyx(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* COPYX */\n"
 	      "    memcpy(m_ + %lu, x_, %lu * sizeof (%s));\n"
@@ -172,7 +192,9 @@ static int inst_copyx(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_mul1(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_mul1(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* MAC1 */\n"
 	      "    %s *z = (%s *)( m_ + %lu );\n"
@@ -206,7 +228,9 @@ static int inst_mul1(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_mul2(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_mul2(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* MAC2 */\n"
 	      "    %s *z = (%s *)( m_ + %lu );\n"
@@ -240,7 +264,9 @@ static int inst_mul2(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_mul3(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_mul3(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* MAC3 */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -273,7 +299,9 @@ static int inst_mul3(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_mul4(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_mul4(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* MAC4 */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -299,7 +327,9 @@ static int inst_mul4(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_add(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_add(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* ADD */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -324,7 +354,9 @@ static int inst_add(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_suby(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_suby(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* SUBY */\n"
 	      "    %s *z = (%s *)( m_ + %lu );\n"
@@ -349,7 +381,9 @@ static int inst_suby(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_relu(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_relu(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* RELU */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -372,7 +406,9 @@ static int inst_relu(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_linear(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_linear(const struct g__ann_program_inst *inst, FILE *file)
+{
 	G__UNUSED(inst);
 	if (P(file,
 	      "  { /* LINEAR */\n"
@@ -384,7 +420,9 @@ static int inst_linear(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_softmax(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_softmax(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* SOFTMAX */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -420,7 +458,9 @@ static int inst_softmax(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_sigmoid(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_sigmoid(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* SIGMOID */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -452,7 +492,9 @@ static int inst_sigmoid(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_relud(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_relud(const struct g__ann_program_inst *inst, FILE *file)
+{
 	if (P(file,
 	      "  { /* RELUD */\n"
 	      "    %s *za = (%s *)( m_ + %lu );\n"
@@ -479,7 +521,9 @@ static int inst_relud(const struct g__ann_program_inst *inst, FILE *file) {
 	return 0;
 }
 
-static int inst_lineard(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_lineard(const struct g__ann_program_inst *inst, FILE *file)
+{
 	G__UNUSED(inst);
 	G__UNUSED(file);
 	G__DEBUG(G__ERR_SOFTWARE);
@@ -488,7 +532,9 @@ static int inst_lineard(const struct g__ann_program_inst *inst, FILE *file) {
 	return -1;
 }
 
-static int inst_softmaxd(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_softmaxd(const struct g__ann_program_inst *inst, FILE *file)
+{
 	G__UNUSED(inst);
 	G__UNUSED(file);
 	G__DEBUG(G__ERR_SOFTWARE);
@@ -497,7 +543,9 @@ static int inst_softmaxd(const struct g__ann_program_inst *inst, FILE *file) {
 	return -1;
 }
 
-static int inst_sigmoidd(const struct g__ann_program_inst *inst, FILE *file) {
+static int
+inst_sigmoidd(const struct g__ann_program_inst *inst, FILE *file)
+{
 	G__UNUSED(inst);
 	G__UNUSED(file);
 	G__DEBUG(G__ERR_SOFTWARE);
@@ -506,7 +554,9 @@ static int inst_sigmoidd(const struct g__ann_program_inst *inst, FILE *file) {
 	return -1;
 }
 
-static int program(const struct g__ann_program *program, FILE *file) {
+static int
+program(const struct g__ann_program *program, FILE *file)
+{
 	const struct g__ann_program_inst *inst;
 	int i;
 
@@ -649,14 +699,16 @@ static int program(const struct g__ann_program *program, FILE *file) {
 	return 0;
 }
 
-static int header(const struct g__ann *ann, FILE *file, int includes) {
+static int
+header(const struct g__ann *ann, FILE *file, int includes)
+{
 	time_t t;
 
 	t = time(0);
 	if (P(file,
 	      "/*\n"
 	      " * Auto Generated by The Gravity Compiler - %s"
-	      " * Copyright (C) Tony Givargis, 2019\n"
+	      " * Copyright (C) Tony Givargis, 2019-2020\n"
 	      " */\n\n",
 	      ctime(&t),
 	      ann->module)) {
@@ -676,7 +728,9 @@ static int header(const struct g__ann *ann, FILE *file, int includes) {
 	return 0;
 }
 
-static int initialize(const struct g__ann *ann, FILE *file) {
+static int
+initialize(const struct g__ann *ann, FILE *file)
+{
 	const struct g__ann_program *prog;
 
 	prog = &ann->program[G__ANN_PROGRAM_INITIALIZE];
@@ -689,7 +743,9 @@ static int initialize(const struct g__ann *ann, FILE *file) {
 	return 0;
 }
 
-static int activate(const struct g__ann *ann, FILE *file) {
+static int
+activate(const struct g__ann *ann, FILE *file)
+{
 	const struct g__ann_program *prog;
 
 	prog = &ann->program[G__ANN_PROGRAM_ACTIVATE];
@@ -705,7 +761,9 @@ static int activate(const struct g__ann *ann, FILE *file) {
 	return 0;
 }
 
-static int backprop(const struct g__ann *ann, FILE *file) {
+static int
+backprop(const struct g__ann *ann, FILE *file)
+{
 	const struct g__ann_program *prog;
 
 	prog = &ann->program[G__ANN_PROGRAM_BACKPROP];
@@ -720,7 +778,9 @@ static int backprop(const struct g__ann *ann, FILE *file) {
 	return 0;
 }
 
-static int train(const struct g__ann *ann, FILE *file) {
+static int
+train(const struct g__ann *ann, FILE *file)
+{
 	const struct g__ann_program *prog;
 
 	prog = &ann->program[G__ANN_PROGRAM_TRAIN];
@@ -736,7 +796,9 @@ static int train(const struct g__ann *ann, FILE *file) {
 	return 0;
 }
 
-static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
+static int
+export(const struct g__ann *ann, FILE *file1, FILE *file2)
+{
 	const struct g__ann_program_inst *inst1, *inst2;
 	const char *prefix;
 
@@ -822,7 +884,9 @@ static int export(const struct g__ann *ann, FILE *file1, FILE *file2) {
 	return 0;
 }
 
-int g__emitc(const struct g__ann *ann, const char *tmp) {
+int
+g__emitc(const struct g__ann *ann, const char *tmp)
+{
 	FILE *file1, *file2;
 	size_t n;
 	char *s;

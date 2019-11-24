@@ -1,6 +1,6 @@
 /**
  * g_ir.h
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *

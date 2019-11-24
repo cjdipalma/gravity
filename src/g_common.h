@@ -1,6 +1,6 @@
 /**
  * g_common.h
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -79,7 +79,9 @@ const char *g__error(int e);
 
 void g__unlink(const char *pathname);
 
-__attribute__((__unused__)) static size_t g__strlen(const char *s) {
+__attribute__((__unused__)) static size_t
+g__strlen(const char *s)
+{
 	return s ? strlen(s) : 0;
 }
 

@@ -1,6 +1,6 @@
 /**
  * g_ann.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -19,7 +19,9 @@
 
 #define MAX_PROGRAM_CAPACITY 1000
 
-struct g__ann_program_inst *newinst(struct g__ann_program *program) {
+struct g__ann_program_inst *
+newinst(struct g__ann_program *program)
+{
 	if (MAX_PROGRAM_CAPACITY <= program->size) {
 		G__DEBUG(G__ERR_SOFTWARE);
 		assert( 0 );
@@ -29,7 +31,9 @@ struct g__ann_program_inst *newinst(struct g__ann_program *program) {
 	return &program->inst[program->size++];
 }
 
-static size_t unit(const struct g__ann_precision *precision) {
+static size_t
+unit(const struct g__ann_precision *precision)
+{
 	switch (precision->precision) {
 	case G__IR_PRECISION_FLOAT : return 4;
 	case G__IR_PRECISION_DOUBLE: return 8;
@@ -42,7 +46,9 @@ static size_t unit(const struct g__ann_precision *precision) {
 	return 0;
 }
 
-static int emit_precision(struct g__ann *ann, const struct g__ir *ir) {
+static int
+emit_precision(struct g__ann *ann, const struct g__ir *ir)
+{
 	struct g__ann_precision *precision;
 	uint64_t n, m;
 	int l;
@@ -80,9 +86,11 @@ static int emit_precision(struct g__ann *ann, const struct g__ir *ir) {
 	return 0;
 }
 
-static int emit_program_initialize(struct g__ann *ann,
-				   const struct g__ir *ir,
-				   int program_) {
+static int
+emit_program_initialize(struct g__ann *ann,
+			const struct g__ir *ir,
+			int program_)
+{
 	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
@@ -133,9 +141,9 @@ static int emit_program_initialize(struct g__ann *ann,
 	return 0;
 }
 
-static int emit_program_activate(struct g__ann *ann,
-				 const struct g__ir *ir,
-				 int program_) {
+static int
+emit_program_activate(struct g__ann *ann, const struct g__ir *ir, int program_)
+{
 	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
@@ -222,9 +230,9 @@ static int emit_program_activate(struct g__ann *ann,
 	return 0;
 }
 
-static int emit_program_backprop(struct g__ann *ann,
-				 const struct g__ir *ir,
-				 int program_) {
+static int
+emit_program_backprop(struct g__ann *ann, const struct g__ir *ir, int program_)
+{
 	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
@@ -349,9 +357,9 @@ static int emit_program_backprop(struct g__ann *ann,
 	return 0;
 }
 
-static int emit_program_train(struct g__ann *ann,
-			      const struct g__ir *ir,
-			      int program_) {
+static int
+emit_program_train(struct g__ann *ann, const struct g__ir *ir, int program_)
+{
 	struct g__ann_precision *precision;
 	struct g__ann_program *program;
 	struct g__ann_program_inst *inst;
@@ -457,7 +465,9 @@ static int emit_program_train(struct g__ann *ann,
 	return 0;
 }
 
-static int emit_program(struct g__ann *ann, const struct g__ir *ir) {
+static int
+emit_program(struct g__ann *ann, const struct g__ir *ir)
+{
 	if (emit_program_initialize(ann,
 				    ir,
 				    G__ANN_PROGRAM_INITIALIZE) ||
@@ -476,7 +486,9 @@ static int emit_program(struct g__ann *ann, const struct g__ir *ir) {
 	return 0;
 }
 
-struct g__ann *g__ann_open(const struct g__ir *ir) {
+struct g__ann *
+g__ann_open(const struct g__ir *ir)
+{
 	struct g__ann_precision *precision;
 	struct g__ann *ann;
 	size_t n;
@@ -548,7 +560,9 @@ struct g__ann *g__ann_open(const struct g__ir *ir) {
 	return ann;
 }
 
-void g__ann_close(struct g__ann *ann) {
+void
+g__ann_close(struct g__ann *ann)
+{
 	struct g__ann_precision *precision;
 	int i;
 

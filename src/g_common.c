@@ -1,6 +1,6 @@
 /**
  * g_common.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -22,7 +22,9 @@
 
 int g__debug_enabled;
 
-void g__sprintf(char *str, size_t size, const char *format, ...) {
+void
+g__sprintf(char *str, size_t size, const char *format, ...)
+{
 	va_list ap;
 
 	assert( str && size && format );
@@ -36,7 +38,9 @@ void g__sprintf(char *str, size_t size, const char *format, ...) {
 	va_end(ap);
 }
 
-void *g__malloc(size_t n) {
+void *
+g__malloc(size_t n)
+{
 	void *p;
 
 	p = malloc(n);
@@ -47,7 +51,9 @@ void *g__malloc(size_t n) {
 	return p;
 }
 
-const char *g__strdup(const char *s_) {
+const char *
+g__strdup(const char *s_)
+{
 	char *s;
 
 	s = g__malloc(g__strlen(s_) + 1);
@@ -60,7 +66,9 @@ const char *g__strdup(const char *s_) {
 	return s;
 }
 
-const char *g__error(int e) {
+const char *
+g__error(int e)
+{
 	switch (e) {
 	case 0 /*--------*/ : return "^";
 	case G__ERR_MEMORY  : return "ERR_MEMORY";
@@ -74,7 +82,9 @@ const char *g__error(int e) {
 	return "G__ERR_UNKNOWN";
 }
 
-void g__unlink(const char *pathname) {
+void
+g__unlink(const char *pathname)
+{
 	if (g__strlen(pathname)) {
 		unlink(pathname);
 	}

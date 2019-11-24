@@ -1,6 +1,6 @@
 /**
  * g.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -41,16 +41,18 @@ struct g {
 	train_fnc_t train;
 };
 
-static int populate(const char *pathname,
-		    const char *module,
-		    const char *prefix,
-		    const char *optimizer,
-		    const char *precision,
-		    const char *costfnc,
-		    const char *batch,
-		    const char *input,
-		    const char *output,
-		    const char *layers[]) {
+static int
+populate(const char *pathname,
+	 const char *module,
+	 const char *prefix,
+	 const char *optimizer,
+	 const char *precision,
+	 const char *costfnc,
+	 const char *batch,
+	 const char *input,
+	 const char *output,
+	 const char *layers[])
+{
 	FILE *file;
 	int i;
 
@@ -91,11 +93,15 @@ static int populate(const char *pathname,
 	return 0;
 }
 
-int g_version(void) {
+int
+g_version(void)
+{
 	return G__VERSION;
 }
 
-void g_debug(int enabled) {
+void
+g_debug(int enabled)
+{
 	yyerroron = 0;
 	g__debug_enabled = 0;
 	if (enabled) {
@@ -104,13 +110,15 @@ void g_debug(int enabled) {
 	}
 }
 
-g_t g_open(const char *optimizer,
-	   const char *precision,
-	   const char *costfnc,
-	   const char *batch,
-	   const char *input,
-	   const char *output,
-	   /* hidden */ ...) {
+g_t
+g_open(const char *optimizer,
+       const char *precision,
+       const char *costfnc,
+       const char *batch,
+       const char *input,
+       const char *output,
+       /* hidden */ ...)
+{
 	const char *tmp, module[256], *layers[1+MAX_LAYERS];
 	const struct g__ir *ir;
 	struct g__ann *ann;
@@ -261,7 +269,9 @@ g_t g_open(const char *optimizer,
 	return g;
 }
 
-void g_close(g_t g) {
+void
+g_close(g_t g)
+{
 	if (g && (SIG == g->sig)) {
 		g__vcm_close(g->vcm);
 		G__FREE(g->memory);
@@ -270,7 +280,9 @@ void g_close(g_t g) {
 	}
 }
 
-size_t g_memory_size(g_t g) {
+size_t
+g_memory_size(g_t g)
+{
 	if (!g || (SIG != g->sig)) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
@@ -278,7 +290,9 @@ size_t g_memory_size(g_t g) {
 	return g->memory_size();
 }
 
-size_t g_memory_hard(g_t g) {
+size_t
+g_memory_hard(g_t g)
+{
 	if (!g || (SIG != g->sig)) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
@@ -286,7 +300,9 @@ size_t g_memory_hard(g_t g) {
 	return g->memory_hard();
 }
 
-void *g_activate(g_t g, const void *x) {
+void *
+g_activate(g_t g, const void *x)
+{
 	if (!g || (SIG != g->sig) || !x) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return 0;
@@ -294,7 +310,9 @@ void *g_activate(g_t g, const void *x) {
 	return g->activate(g->memory, x);
 }
 
-int g_train(g_t g, const void *x, const void *y) {
+int
+g_train(g_t g, const void *x, const void *y)
+{
 	if (!g || (SIG != g->sig) | !x || !y) {
 		G__DEBUG(G__ERR_ARGUMENT);
 		return -1;

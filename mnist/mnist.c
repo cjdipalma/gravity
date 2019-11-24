@@ -1,6 +1,6 @@
 /**
  * mnist.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -32,14 +32,18 @@
 
 typedef REAL_T real_t;
 
-static uint64_t usec(void) {
+static uint64_t
+usec(void)
+{
 	struct timeval t;
 
 	gettimeofday(&t, 0);
 	return (uint64_t)t.tv_usec + (uint64_t)t.tv_sec * 1000000;
 }
 
-static int32_t swap(int32_t x) {
+static int32_t
+swap(int32_t x)
+{
 	union { int32_t i; char b[4]; } in, out;
 
 	in.i = x;
@@ -50,7 +54,9 @@ static int32_t swap(int32_t x) {
 	return out.i;
 }
 
-static int argmax(const real_t *a, int n) {
+static int
+argmax(const real_t *a, int n)
+{
 	real_t max;
 	int i, j;
 
@@ -64,13 +70,15 @@ static int argmax(const real_t *a, int n) {
 	return j;
 }
 
-static int train_and_test(g_t g,
-			  const uint8_t *train_y,
-			  const uint8_t *train_x,
-			  const uint8_t *test_y,
-			  const uint8_t *test_x,
-			  int train_n,
-			  int test_n) {
+static int
+train_and_test(g_t g,
+	       const uint8_t *train_y,
+	       const uint8_t *train_x,
+	       const uint8_t *test_y,
+	       const uint8_t *test_x,
+	       int train_n,
+	       int test_n)
+{
 	const uint8_t *labels, *images;
 	int i, j, k, m, error;
 	real_t *x, *y, *z;
@@ -139,7 +147,9 @@ static int train_and_test(g_t g,
 	return 0;
 }
 
-static uint8_t *load_labels(const char *pathname, int *n) {
+static uint8_t *
+load_labels(const char *pathname, int *n)
+{
 	int32_t meta[2];
 	uint8_t *data;
 	FILE *file;
@@ -177,7 +187,9 @@ static uint8_t *load_labels(const char *pathname, int *n) {
 	return data;
 }
 
-static uint8_t *load_images(const char *pathname, int *n) {
+static uint8_t *
+load_images(const char *pathname, int *n)
+{
 	int32_t meta[4];
 	uint8_t *data;
 	FILE *file;
@@ -218,7 +230,9 @@ static uint8_t *load_images(const char *pathname, int *n) {
 	return data;
 }
 
-int main() {
+int
+main()
+{
 	int train_y_n, train_x_n, test_y_n, test_x_n;
 	uint8_t *train_y, *train_x, *test_y, *test_x;
 	int i, e;

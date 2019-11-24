@@ -1,6 +1,6 @@
 /**
  * g_vcm.c
- * Copyright (C) Tony Givargis, 2019
+ * Copyright (C) Tony Givargis, 2019-2020
  *
  * This file is part of The Gravity Compiler.
  *
@@ -26,7 +26,9 @@ struct g__vcm {
 	void *handle;
 };
 
-static int compile(const char *input, const char *output) {
+static int
+compile(const char *input, const char *output)
+{
 	char *file, *argv[15];
 	int status;
 	pid_t pid;
@@ -69,7 +71,9 @@ static int compile(const char *input, const char *output) {
 	return 0;
 }
 
-g__vcm_t g__vcm_open(const char *pathname) {
+g__vcm_t
+g__vcm_open(const char *pathname)
+{
 	struct g__vcm *vcm;
 	const char *tmp;
 	size_t n;
@@ -112,14 +116,18 @@ g__vcm_t g__vcm_open(const char *pathname) {
 	return vcm;
 }
 
-void g__vcm_close(g__vcm_t vcm) {
+void
+g__vcm_close(g__vcm_t vcm)
+{
 	if (vcm && vcm->handle) {
 		dlclose(vcm->handle);
 	}
 	G__FREE(vcm);
 }
 
-long g__vcm_lookup(g__vcm_t vcm, const char *symbol) {
+long
+g__vcm_lookup(g__vcm_t vcm, const char *symbol)
+{
 	assert( vcm && g__strlen(symbol) );
 
 	return (long)dlsym(vcm->handle, symbol);
