@@ -46,8 +46,8 @@ Benchmarks running on:
   * 1 GB LPDDR2 SDRAM
   * Raspbian 9.11
   * GCC 6.3.0
-  * Python ?
-  * Tensorflow ?
+  * Python 3.5.3
+  * Tensorflow 1.14.0
 
 ```
    Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
