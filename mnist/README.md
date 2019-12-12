@@ -55,5 +55,7 @@ Benchmarks running on:
 -------------------|----------|---------------|---------------|----------------
      Gravity/C     |  0.9670  |     2060      |      139      |  0.722 / 0.358
 -------------------|----------|---------------|---------------|----------------
- Python/Tensorflow |    ?     |       ?       |       ?       |  ? / ----
+ Python/Tensorflow |  FAIL*   |     FAIL*     |     FAIL*     |  FAIL* / ----
+
+* out of memory and unable to complete benchmark
 ```
