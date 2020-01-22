@@ -59,3 +59,25 @@ Benchmarks running on:
 
 * out of memory and unable to complete benchmark
 ```
+
+### Raspberry Pi 4 Model B 2019 Quad Core 64
+
+Benchmarks running on:
+  * Train/Test data preloaded in RAM and excluded from time measurements
+  * 1.5 GHz 64-bit Quad-Core ARM Cortex-A72
+  * 4 GB LPDDR2 SDRAM
+  * Raspbian ?
+  * GCC ?
+  * Python ?
+  * Tensorflow ?
+
+```
+   Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
+                   |          | (usec/sample) | (usec/sample) |      (MB)
+-------------------|----------|---------------|---------------|----------------
+     Gravity/C     |          |               |               |  0.722 / 0.358
+-------------------|----------|---------------|---------------|----------------
+ Python/Tensorflow |  0.9707  |     644       |      111      |  209* / ----
+
+* measuring libtensorflow_framework.so.2 resident memory only
+```
