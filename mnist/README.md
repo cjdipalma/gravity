@@ -66,16 +66,16 @@ Benchmarks running on:
   * Train/Test data preloaded in RAM and excluded from time measurements
   * 1.5 GHz 64-bit Quad-Core ARM Cortex-A72
   * 4 GB LPDDR2 SDRAM
-  * Raspbian ?
-  * GCC ?
-  * Python ?
-  * Tensorflow ?
+  * Raspbian GNU/Linux 10 (buster)
+  * GCC 8.3.0
+  * Python 3.7.3
+  * Tensorflow 1.14.0
 
 ```
    Implementation  | Accuracy |  Train Time   |   Test Time   | Mem. Train/Act.
                    |          | (usec/sample) | (usec/sample) |      (MB)
 -------------------|----------|---------------|---------------|----------------
-     Gravity/C     |          |               |               |  0.722 / 0.358
+     Gravity/C     |  0.9670  |     475       |       33      |  0.722 / 0.358
 -------------------|----------|---------------|---------------|----------------
  Python/Tensorflow |  0.9707  |     644       |      111      |  209* / ----
 
