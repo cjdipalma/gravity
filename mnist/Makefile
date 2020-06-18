@@ -17,9 +17,11 @@
 
 CC    = gcc
 FLAGS = -ansi -pedantic -Wshadow -Wall -Wextra -Werror -Wfatal-errors -fPIC -O3
-LIBS  = ../src/libgravity.a -ldl -lm
+LIBS  = ../src/libgravity.a ../src/test.h -ldl -lm
 DEST  = mnist
 OBJS  = mnist.o
+IDK   = mnist-static.c ../src/test.c avr-sim.c dump-ram.c
+IDK2  = mnist-avr.c test-avr.c avr-sim.c dump-ram.c
 
 all: $(OBJS)
 	$(CC) -o $(DEST) $(OBJS) $(LIBS)
@@ -30,5 +32,11 @@ all: $(OBJS)
 
 clean:
 	rm -f $(DEST) $(OBJS) *.o *.d *~ *#
+
+static:
+	$(CC) $(IDK) -o $(DEST) -lm
+
+avr:
+	$(CC) $(IDK2) -o $(DEST) -lm
 
 -include $(OBJS:.o=.d)

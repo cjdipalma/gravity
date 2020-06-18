@@ -1,3 +1,15 @@
+# MNIST-static notes
+
+MNIST-static is a statically compiled implementation of automatically generated 
+code from Gravity. MNIST-avr uses the same commands as are provided by avrmem.h
+at https://github.com/cjdipalma/EmbedML/tree/master/EmbedML. MNIST-static runs
+notably faster than MNIST-avr and should be used to generate the trained weights,
+which can then be loaded onto the AVR.
+
+A pre-trained ram_memory is included for demonstration.
+
+//////////////////////////////////////////////////////////////////////////////////
+
 # MNIST Benchmark
 
 Using the Gravity compiler to build a handwritten digits recognizer from the
