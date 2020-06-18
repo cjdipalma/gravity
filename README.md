@@ -1,3 +1,7 @@
+See the MNIST directory readme for additional information about this fork.
+
+//////////////////////////////////////////////////////////////////////////
+
 # The Gravity Compiler
 
 The Gravity Compiler is an Artificial Neural Network to ANSI C optimizing
