@@ -8,6 +8,13 @@ which can then be loaded onto the AVR.
 
 A pre-trained ram_memory is included for demonstration.
 
+## Building and Running Gravity for AVR
+  1. $ cd gravity/avrsrc
+  2. $ make
+  3. $ cd ../mnist
+  4. $ make avr
+  5. $ ./mnist
+
 //////////////////////////////////////////////////////////////////////////////////
 
 # MNIST Benchmark
