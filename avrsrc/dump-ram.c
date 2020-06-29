@@ -1,6 +1,6 @@
 #include "avr-sim.h"
 #include "dump-ram.h"
-#include "test-avr.h"
+#include "test.h"
 #include <stdio.h>
 
 void dump_ram()

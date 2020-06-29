@@ -17,27 +17,26 @@
 
 CC    = gcc
 FLAGS = -ansi -pedantic -Wshadow -Wall -Wextra -Werror -Wfatal-errors -fPIC -O3
-LIBS  = ../src/libgravity.a ../src/test.h -ldl -lm
-DEST  = mnist
-OBJS  = mnist.o
-IDK   = mnist-static.c ../src/test.c $(AV)/avr-sim.c $(AV)/dump-ram.c
-AV	  = ../avrsrc
-IDK2  = mnist-avr.c $(AV)/test.c $(AV)/avr-sim.c $(AV)/dump-ram.c
+LIBS  = -ldl -lm
+DEST  = gravity
+OBJS  = g_common.o g_vcm.o g_ir.o g_ann.o g_emitc.o g.o y.tab.o lex.yy.o
 
-all: $(OBJS)
-	$(CC) -o $(DEST) $(OBJS) $(LIBS)
+all: lang $(OBJS) $(DEST).o
+	$(CC) -o $(DEST) $(DEST).o $(OBJS) $(LIBS)
+	$(CC) -shared -o lib$(DEST).so $(OBJS) $(LIBS)
+	$(AR) rcs lib$(DEST).a $(OBJS)
 
 %.o: %.c
 	$(CC) $(FLAGS) -c $<
 	$(CC) $(FLAGS) -MM $< > $*.d
 
+lang: g_lang.y g_lang.l
+	yacc -d g_lang.y
+	lex g_lang.l
+	$(CC) -fPIC -Wall -O3 -c y.tab.c
+	$(CC) -fPIC -Wall -O3 -c lex.yy.c
+
 clean:
-	rm -f $(DEST) $(OBJS) *.o *.d *~ *#
-
-static:
-	$(CC) $(IDK) -o $(DEST) -lm
-
-avr:
-	$(CC) $(IDK2) -o $(DEST) -lm
+	rm -f $(DEST) y.tab.* lex.yy.* *.so *.a *.o *.d *~ *#
 
 -include $(OBJS:.o=.d)

@@ -77,7 +77,7 @@ static float *_activate_(const float *x_) {
   { /* ADD */
     uint32_t i;
     for (i=0; i<100; ++i) {
-	  const float B = ram_read_float(313600+4*i);
+	  const float B = ram_read_float(313600 + 4*i);
 	  ram_inc_float(720016 + 4*i, B);
     }
   }
@@ -198,7 +198,7 @@ static void _backprop_(const float *y_) {
     for (i=0; i<100; ++i) {
 	  const float B = ram_read_float(720816 + 4*i);
       if (0.0 >= B) {
-		ram_write_float(721216, 0.0);
+		ram_write_float(721216 + 4*i, 0.0);
       }
     }
   }

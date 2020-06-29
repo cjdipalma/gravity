@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "test-avr.h"
-#include "avr-sim.h"
-#include "dump-ram.h"
+#include "../avrsrc/test.h"
+#include "../avrsrc/avr-sim.h"
+#include "../avrsrc/dump-ram.h"
 
 #define BATCH  8
 #define EPOCHS 4

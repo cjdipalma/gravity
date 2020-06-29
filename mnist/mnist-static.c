@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "../src/test.h"
-#include "dump-ram.h"
+#include "../avrsrc/dump-ram.h"
 
 #define BATCH  8
 #define EPOCHS 4
